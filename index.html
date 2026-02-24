@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>🚌 Abribus connecté – Louhans</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style>
+:root {
+  --bg: #0f172a;
+  --panel: #020617;
+  --text: #e5e7eb;
+  --accent: #22c55e;
+}
+body.night {
+  --bg: #020617;
+  --panel: #000;
+  --text: #94a3b8;
+  --accent: #38bdf8;
+}
+body {
+  margin:0;
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  transition:0.5s;
+}
+header {
+  background:var(--panel);
+  padding:1rem;
+  text-align:center;
+  border-bottom:3px solid var(--accent);
+}
+header h1 {margin:0; font-size:1.8rem;}
+header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem;}
+section {
+  background:var(--panel);
+  margin:1rem;
+  padding:1rem;
+  border-radius:14px;
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:1rem;
+}
+h2 {color:var(--accent); margin-top:0;}
+input, button {
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  font-size:0.95rem;
+  margin-bottom:0.5rem;
+}
+button {
+  background:var(--accent);
+  font-weight:bold;
+  cursor:pointer;
+}
+iframe {
+  width:100%;
+  height:320px;
+  border:none;
+  border-radius:12px;
+  background:#000;
+}
+.clock {
+  font-size:2.5rem;
+  text-align:center;
+  font-weight:bold;
+}
+.recherche-box {
+  max-width:360px;
+}
+#alertBanner {
+  display:none;
+  background:#dc2626;
+  color:white;
+  padding:12px;
+  border-radius:10px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+#iaResume {
+  background:var(--panel);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+  font-size:1rem;
+  color:#cbd5f5;
+}
+#actualites {
+  background:var(--panel);
+  padding:10px;
+  border-radius:10px;
+  color:#cbd5f5;
+  height:180px;
+  overflow-y:auto;
+}
+.actualiteItem {margin-bottom:18px;}
+.actualiteItem .title {font-size:1.1rem; font-weight:bold;}
+.actualiteItem .link {
+  display:inline-block;
+  margin-top:6px;
+  padding:6px 10px;
+  font-size:0.95rem;
+  color:#38bdf8;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:8px;
+}
+.actualiteItem .link:hover {
+  background:rgba(56,189,248,0.15);
+  text-decoration:underline;
+}
+footer {text-align:center; padding:1rem; font-size:0.85rem; color:#64748b;}
+</style>
+</head>
+
+<body>
+<header>
+  <h1>🚌 Abribus connecté</h1>
+  <p id="cityLabel">Louhans (71500)</p>
+</header>
+
+<section>
+  <div class="clock" id="clock">--:--</div>
+</section>
+
+<section class="grid">
+  <div class="recherche-box">
+    <h2>Recherche de ville</h2>
+    <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+    <button onclick="rechercherVille()">Mettre à jour</button>
+    <p id="coords"></p>
+  </div>
+  <div>
+    <h2>Carte & arrêts de bus</h2>
+    <iframe id="map"></iframe>
+  </div>
+</section>
+
+<section class="grid">
+  <div>
+    <h2>🌦 Météo</h2>
+    <iframe id="meteoFrame"></iframe>
+  </div>
+  <div>
+    <h2>🚌 Horaires bus</h2>
+    <iframe id="busFrame"></iframe>
+  </div>
+</section>
+
+<section>
+  <h2>📰 Actualités locales & trafic</h2>
+  <div id="alertBanner"></div>
+  <div id="iaResume"></div>
+  <div id="actualites"></div>
+</section>
+
+<footer>
+  Abribus intelligent – STI2D / SIN
+</footer>
+
+<script>
+// Horloge
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,1000); updateClock();
+
+// Mode nuit
+function checkNightMode(){
+  const h=new Date().getHours();
+  document.body.classList.toggle('night',h>=20||h<=6);
+}
+setInterval(checkNightMode,60000); checkNightMode();
+
+const mapFrame=document.getElementById('map');
+const meteoFrame=document.getElementById('meteoFrame');
+const busFrame=document.getElementById('busFrame');
+const cityLabel=document.getElementById('cityLabel');
+const coordsDiv=document.getElementById('coords');
+const alertBanner=document.getElementById('alertBanner');
+const iaResume=document.getElementById('iaResume');
+const actualitesDiv=document.getElementById('actualites');
+
+function rechercherVille(){
+  const ville = document.getElementById('adresse').value;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`)
+  .then(r => r.json())
+  .then(d => {
+    if(!d.length) return alert('Ville introuvable');
+
+    const lat = d[0].lat;
+    const lon = d[0].lon;
+    const nom = d[0].display_name.split(',')[0];
+
+    cityLabel.textContent = nom;
+    coordsDiv.textContent = `📍 ${lat}, ${lon}`;
+
+    /* 🗺️ CARTE : TRANSPORTS EN COMMUN UNIQUEMENT */
+    mapFrame.src =
+      `https://www.google.com/maps?q=${encodeURIComponent(nom)}&` +
+      `t=&z=14&output=embed&layer=transit`;
+
+    /* 🌦 MÉTÉO */
+    meteoFrame.src =
+      `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+
+    /* 🚌 HORAIRES DE BUS (TRANSPORT PUBLIC) */
+    busFrame.src =
+      `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&` +
+      `output=embed&layer=transit`;
+
+    genererResumeIA(nom);
+    evaluerTrafic(nom);
+    chargerActualites(nom);
+  });
+}
+
+function genererResumeIA(ville){
+  const phrases=[
+    `Circulation fluide à ${ville}.`,
+    `Quelques ralentissements possibles à ${ville}.`,
+    `Perturbations signalées sur certaines lignes à ${ville}.`,
+    `Trafic surveillé à ${ville}.`
+  ];
+  iaResume.textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
+}
+
+function evaluerTrafic(ville){
+  const niveaux=['🟢 Trafic faible','🟠 Trafic moyen','🔴 Trafic élevé'];
+  alertBanner.textContent='🚦 '+niveaux[Math.floor(Math.random()*niveaux.length)]+' à '+ville;
+  alertBanner.style.display='block';
+}
+
+// --- FLUX RSS DISPONIBLES PAR VILLE / RÉGION ---
+const rssSources = [
+  { keywords: ['louhans','saône-et-loire','71'], url: 'https://www.lejsl.com/edition-louhans/rss' },
+  { keywords: ['chalon','chalon-sur-saone'], url: 'https://www.lejsl.com/edition-chalon/rss' },
+  { keywords: ['macon','mâcon'], url: 'https://www.lejsl.com/edition-macon/rss' },
+  { keywords: ['bourg','bourg-en-bresse'], url: 'https://www.leprogres.fr/edition-bourg-en-bresse/rss' },
+  { keywords: ['dijon'], url: 'https://www.bienpublic.com/edition-dijon/rss' }
+];
+
+function choisirFluxRSS(ville){
+  const v = ville.toLowerCase();
+  for(const source of rssSources){
+    if(source.keywords.some(k => v.includes(k))){
+      return source.url;
+    }
+  }
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(ville + ' trafic bus')}&hl=fr&gl=FR&ceid=FR:fr`;
+}
+
+// --- ACTUALITÉS ---
+const fluxRSS = [
+  { source: 'Le JSL', url: 'https://www.lejsl.com/rss', villes: ['louhans','chalon','bresse'], badge:'🗞️ Le JSL' },
+  { source: 'Le Progrès', url: 'https://www.leprogres.fr/rss', villes: ['lyon','bourg','ain'], badge:'📰 Le Progrès' }
+];
+
+function chargerActualites(ville){
+  const villeLower = ville.toLowerCase();
+  let flux = fluxRSS.find(f => f.villes.some(v => villeLower.includes(v)));
+
+  let sourceLabel = '🗞️ Google News';
+  let rssUrl;
+
+  if(flux){
+    rssUrl = flux.url;
+    sourceLabel = flux.badge;
+  } else {
+    rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic bus grève accident')}&hl=fr&gl=FR&ceid=FR:fr`;
+  }
+
+  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+  .then(res=>res.json())
+  .then(data=>{
+    actualitesDiv.innerHTML='';
+    data.items.slice(0,20).forEach(item=>{
+      const titreLower=item.title.toLowerCase();
+      const alerte=['grève','accident','retard','perturbation'].some(k=>titreLower.includes(k));
+
+      if(alerte) sauvegarderPerturbation(ville,item.title);
+
+      const div=document.createElement('div');
+      div.className='actualiteItem';
+      div.innerHTML=`
+        <div class="title">${alerte?'🚧 ':''}${item.title}</div>
+        <div class="info">${sourceLabel}</div>
+        <a class="link" href="${item.link}" target="_blank">En savoir plus</a>
+      `;
+      actualitesDiv.appendChild(div);
+    });
+    startScrolling();
+  });
+}
+
+function sauvegarderPerturbation(ville,titre){
+  const hist=JSON.parse(localStorage.getItem('perturbations')||'[]');
+  hist.push({ville,titre,date:new Date().toLocaleString()});
+  localStorage.setItem('perturbations',JSON.stringify(hist.slice(-50)));
+}
+
+function startScrolling(){
+  if(scrollInterval) clearInterval(scrollInterval);
+  scrollInterval=setInterval(()=>{
+    if(!autoScroll) return;
+    actualitesDiv.scrollTop+=0.4;
+    if(actualitesDiv.scrollTop+actualitesDiv.clientHeight>=actualitesDiv.scrollHeight){
+      actualitesDiv.scrollTop=0;
+    }
+  },30);
+}
+actualitesDiv.addEventListener('mouseenter',()=>autoScroll=false);
+actualitesDiv.addEventListener('mouseleave',()=>autoScroll=true);
+actualitesDiv.addEventListener('touchstart',()=>autoScroll=false);
+actualitesDiv.addEventListener('touchend',()=>autoScroll=true);
+
+setInterval(rechercherVille,600000);
+window.onload=rechercherVille;
+</script>
+</body>
+</html>
