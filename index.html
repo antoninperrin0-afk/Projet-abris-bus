@@ -70,9 +70,8 @@ iframe {
   text-align:center;
   font-weight:bold;
 }
-.recherche-box {
-  max-width:360px;
-}
+.recherche-box {max-width:360px;}
+
 #alertBanner {
   display:none;
   background:#dc2626;
@@ -115,6 +114,18 @@ iframe {
   background:rgba(56,189,248,0.15);
   text-decoration:underline;
 }
+
+#toggleScrollBtn {
+  width:auto;
+  padding:6px 12px;
+  font-size:0.9rem;
+}
+
+#backToTopBtn {
+  background:#334155;
+  color:white;
+}
+
 footer {text-align:center; padding:1rem; font-size:0.85rem; color:#64748b;}
 </style>
 </head>
@@ -154,10 +165,23 @@ footer {text-align:center; padding:1rem; font-size:0.85rem; color:#64748b;}
 </section>
 
 <section>
-  <h2>📰 Actualités locales & trafic</h2>
+  <h2 style="display:flex;align-items:center;gap:10px;">
+    📰 Actualités locales & trafic
+    <button id="toggleScrollBtn">⏸ Pause</button>
+  </h2>
+
   <div id="alertBanner"></div>
   <div id="iaResume"></div>
+
+  <div id="loadingActus" style="display:none;opacity:0.7;">
+    ⏳ Chargement des actualités…
+  </div>
+
   <div id="actualites"></div>
+
+  <button id="backToTopBtn" style="display:none;margin-top:8px;">
+    ⬆ Revenir en haut
+  </button>
 </section>
 
 <footer>
@@ -180,6 +204,9 @@ function checkNightMode(){
 }
 setInterval(checkNightMode,60000); checkNightMode();
 
+let autoScroll = true;
+let scrollInterval = null;
+
 const mapFrame=document.getElementById('map');
 const meteoFrame=document.getElementById('meteoFrame');
 const busFrame=document.getElementById('busFrame');
@@ -188,6 +215,22 @@ const coordsDiv=document.getElementById('coords');
 const alertBanner=document.getElementById('alertBanner');
 const iaResume=document.getElementById('iaResume');
 const actualitesDiv=document.getElementById('actualites');
+const toggleScrollBtn=document.getElementById('toggleScrollBtn');
+const backToTopBtn=document.getElementById('backToTopBtn');
+const loadingActus=document.getElementById('loadingActus');
+
+toggleScrollBtn.addEventListener('click', () => {
+  autoScroll = !autoScroll;
+  toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
+});
+
+actualitesDiv.addEventListener('scroll', () => {
+  backToTopBtn.style.display = actualitesDiv.scrollTop > 80 ? 'block' : 'none';
+});
+
+backToTopBtn.addEventListener('click', () => {
+  actualitesDiv.scrollTo({ top: 0, behavior: 'smooth' });
+});
 
 function rechercherVille(){
   const ville = document.getElementById('adresse').value;
@@ -204,19 +247,9 @@ function rechercherVille(){
     cityLabel.textContent = nom;
     coordsDiv.textContent = `📍 ${lat}, ${lon}`;
 
-    /* 🗺️ CARTE : TRANSPORTS EN COMMUN UNIQUEMENT */
-    mapFrame.src =
-      `https://www.google.com/maps?q=${encodeURIComponent(nom)}&` +
-      `t=&z=14&output=embed&layer=transit`;
-
-    /* 🌦 MÉTÉO */
-    meteoFrame.src =
-      `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
-
-    /* 🚌 HORAIRES DE BUS (TRANSPORT PUBLIC) */
-    busFrame.src =
-      `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&` +
-      `output=embed&layer=transit`;
+    mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
+    meteoFrame.src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+    busFrame.src = `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&output=embed&layer=transit`;
 
     genererResumeIA(nom);
     evaluerTrafic(nom);
@@ -240,32 +273,15 @@ function evaluerTrafic(ville){
   alertBanner.style.display='block';
 }
 
-// --- FLUX RSS DISPONIBLES PAR VILLE / RÉGION ---
-const rssSources = [
-  { keywords: ['louhans','saône-et-loire','71'], url: 'https://www.lejsl.com/edition-louhans/rss' },
-  { keywords: ['chalon','chalon-sur-saone'], url: 'https://www.lejsl.com/edition-chalon/rss' },
-  { keywords: ['macon','mâcon'], url: 'https://www.lejsl.com/edition-macon/rss' },
-  { keywords: ['bourg','bourg-en-bresse'], url: 'https://www.leprogres.fr/edition-bourg-en-bresse/rss' },
-  { keywords: ['dijon'], url: 'https://www.bienpublic.com/edition-dijon/rss' }
-];
-
-function choisirFluxRSS(ville){
-  const v = ville.toLowerCase();
-  for(const source of rssSources){
-    if(source.keywords.some(k => v.includes(k))){
-      return source.url;
-    }
-  }
-  return `https://news.google.com/rss/search?q=${encodeURIComponent(ville + ' trafic bus')}&hl=fr&gl=FR&ceid=FR:fr`;
-}
-
-// --- ACTUALITÉS ---
 const fluxRSS = [
   { source: 'Le JSL', url: 'https://www.lejsl.com/rss', villes: ['louhans','chalon','bresse'], badge:'🗞️ Le JSL' },
   { source: 'Le Progrès', url: 'https://www.leprogres.fr/rss', villes: ['lyon','bourg','ain'], badge:'📰 Le Progrès' }
 ];
 
 function chargerActualites(ville){
+  loadingActus.style.display = 'block';
+  actualitesDiv.innerHTML = '';
+
   const villeLower = ville.toLowerCase();
   let flux = fluxRSS.find(f => f.villes.some(v => villeLower.includes(v)));
 
@@ -283,11 +299,10 @@ function chargerActualites(ville){
   .then(res=>res.json())
   .then(data=>{
     actualitesDiv.innerHTML='';
+
     data.items.slice(0,20).forEach(item=>{
       const titreLower=item.title.toLowerCase();
       const alerte=['grève','accident','retard','perturbation'].some(k=>titreLower.includes(k));
-
-      if(alerte) sauvegarderPerturbation(ville,item.title);
 
       const div=document.createElement('div');
       div.className='actualiteItem';
@@ -298,14 +313,13 @@ function chargerActualites(ville){
       `;
       actualitesDiv.appendChild(div);
     });
-    startScrolling();
-  });
-}
 
-function sauvegarderPerturbation(ville,titre){
-  const hist=JSON.parse(localStorage.getItem('perturbations')||'[]');
-  hist.push({ville,titre,date:new Date().toLocaleString()});
-  localStorage.setItem('perturbations',JSON.stringify(hist.slice(-50)));
+    loadingActus.style.display = 'none';
+    startScrolling();
+  })
+  .catch(()=>{
+    loadingActus.textContent = "⚠ Impossible de charger les actualités";
+  });
 }
 
 function startScrolling(){
@@ -318,6 +332,7 @@ function startScrolling(){
     }
   },30);
 }
+
 actualitesDiv.addEventListener('mouseenter',()=>autoScroll=false);
 actualitesDiv.addEventListener('mouseleave',()=>autoScroll=true);
 actualitesDiv.addEventListener('touchstart',()=>autoScroll=false);
