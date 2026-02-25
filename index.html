@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<title>🚌 Abribus connecté – Louhans</title>
+<title> 🚌 Abribus connecté – Louhans</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 <style>
@@ -25,13 +25,44 @@ body {
   color:var(--text);
   transition:0.5s;
 }
+
 header {
   background:var(--panel);
   padding:1rem;
   text-align:center;
   border-bottom:3px solid var(--accent);
 }
-header h1 {margin:0; font-size:1.8rem;}
+
+/* ALIGNEMENT LOGO + TEXTE */
+header h1 {
+  margin:0;
+  font-size:1.8rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+/* LOGO */
+#logo {
+  height:42px;
+  cursor:pointer;
+  transition:transform 0.2s;
+}
+
+/* ANIMATION */
+.logo-anim {
+  animation: logoBounce 0.6s ease;
+}
+
+@keyframes logoBounce {
+  0%   { transform:scale(1) rotate(0deg); }
+  25%  { transform:scale(1.2) rotate(-10deg); }
+  50%  { transform:scale(1.25) rotate(10deg); }
+  75%  { transform:scale(1.15) rotate(-5deg); }
+  100% { transform:scale(1) rotate(0deg); }
+}
+
 header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem;}
 
 section {
@@ -146,7 +177,10 @@ footer {
 <body>
 
 <header>
-  <h1>🚌 Abribus connecté</h1>
+  <h1>
+    <img id="logo" src="logo.png" alt="Logo Abribus">
+    🚌 Abribus connecté
+  </h1>
   <p id="cityLabel">Louhans (71500)</p>
 </header>
 
@@ -203,6 +237,15 @@ footer {
 </footer>
 
 <script>
+// ANIMATION LOGO AU CLIC
+const logo = document.getElementById("logo");
+
+logo.addEventListener("click", () => {
+  logo.classList.remove("logo-anim");
+  void logo.offsetWidth; 
+  logo.classList.add("logo-anim");
+});
+
 // Horloge
 function updateClock(){
   const n=new Date();
