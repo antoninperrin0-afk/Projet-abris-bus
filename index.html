@@ -25,14 +25,26 @@ body {
   color:var(--text);
   transition:0.5s;
 }
+
+/* HEADER AVEC LOGO */
 header {
   background:var(--panel);
   padding:1rem;
-  text-align:center;
   border-bottom:3px solid var(--accent);
 }
+.headerContent {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+#logo {
+  height:48px;
+  width:auto;
+}
 header h1 {margin:0; font-size:1.8rem;}
-header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem;}
+header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem; text-align:center;}
 
 section {
   background:var(--panel);
@@ -40,13 +52,11 @@ section {
   padding:1rem;
   border-radius:14px;
 }
-
 .grid {
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
   gap:1rem;
 }
-
 h2 {color:var(--accent); margin-top:0;}
 
 input, button {
@@ -57,7 +67,6 @@ input, button {
   font-size:0.95rem;
   margin-bottom:0.5rem;
 }
-
 button {
   background:var(--accent);
   font-weight:bold;
@@ -80,26 +89,6 @@ iframe {
 
 .recherche-box {max-width:360px;}
 
-#alertBanner {
-  display:none;
-  background:#dc2626;
-  color:white;
-  padding:12px;
-  border-radius:10px;
-  font-weight:bold;
-  text-align:center;
-  margin-bottom:10px;
-}
-
-#iaResume {
-  background:var(--panel);
-  padding:12px;
-  border-radius:10px;
-  margin-bottom:10px;
-  font-size:1rem;
-  color:#cbd5f5;
-}
-
 #actualites {
   background:var(--panel);
   padding:10px;
@@ -111,17 +100,6 @@ iframe {
 
 .actualiteItem {margin-bottom:18px;}
 .actualiteItem .title {font-size:1.1rem; font-weight:bold;}
-
-.actualiteItem .link {
-  display:inline-block;
-  margin-top:6px;
-  padding:6px 10px;
-  font-size:0.95rem;
-  color:#38bdf8;
-  font-weight:bold;
-  text-decoration:none;
-  border-radius:8px;
-}
 
 #toggleScrollBtn {
   width:auto;
@@ -146,7 +124,11 @@ footer {
 <body>
 
 <header>
-  <h1>🚌 Abribus connecté</h1>
+  <div class="headerContent">
+    <!-- ✅ TON LOGO ICI -->
+    <img id="logo" src="logo.png" alt="Logo abribus">
+    <h1>🚌 Abribus connecté</h1>
+  </div>
   <p id="cityLabel">Louhans (71500)</p>
 </header>
 
@@ -167,29 +149,11 @@ footer {
   </div>
 </section>
 
-<section class="grid">
-  <div>
-    <h2>🌦 Météo</h2>
-    <iframe id="meteoFrame"></iframe>
-  </div>
-  <div>
-    <h2>🚌 Horaires bus</h2>
-    <iframe id="busFrame"></iframe>
-  </div>
-</section>
-
 <section>
   <h2 style="display:flex;align-items:center;gap:10px;">
     📰 Actualités locales & trafic
     <button id="toggleScrollBtn">⏸ Pause</button>
   </h2>
-
-  <div id="alertBanner"></div>
-  <div id="iaResume"></div>
-
-  <div id="loadingActus" style="display:none;opacity:0.7;">
-    ⏳ Chargement des actualités…
-  </div>
 
   <div id="actualites"></div>
 
@@ -211,36 +175,18 @@ function updateClock(){
 }
 setInterval(updateClock,1000); updateClock();
 
-// Mode nuit
-function checkNightMode(){
-  const h=new Date().getHours();
-  document.body.classList.toggle('night',h>=20||h<=6);
-}
-setInterval(checkNightMode,60000); checkNightMode();
-
-// Variables globales
 let autoScroll = true;
 let scrollInterval = null;
 
-const mapFrame=document.getElementById('map');
-const meteoFrame=document.getElementById('meteoFrame');
-const busFrame=document.getElementById('busFrame');
-const cityLabel=document.getElementById('cityLabel');
-const coordsDiv=document.getElementById('coords');
-const alertBanner=document.getElementById('alertBanner');
-const iaResume=document.getElementById('iaResume');
 const actualitesDiv=document.getElementById('actualites');
 const toggleScrollBtn=document.getElementById('toggleScrollBtn');
 const backToTopBtn=document.getElementById('backToTopBtn');
-const loadingActus=document.getElementById('loadingActus');
 
-// Bouton pause auto-scroll
 toggleScrollBtn.addEventListener('click', () => {
   autoScroll = !autoScroll;
   toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
 });
 
-// Bouton retour en haut
 actualitesDiv.addEventListener('scroll', () => {
   backToTopBtn.style.display = actualitesDiv.scrollTop > 50 ? 'block' : 'none';
 });
@@ -251,111 +197,23 @@ backToTopBtn.addEventListener('click', () => {
   actualitesDiv.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-// Recherche ville
-function rechercherVille(){
-  const ville = document.getElementById('adresse').value;
-
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`)
-  .then(r => r.json())
-  .then(d => {
-    if(!d.length) return alert('Ville introuvable');
-
-    const lat = d[0].lat;
-    const lon = d[0].lon;
-    const nom = d[0].display_name.split(',')[0];
-
-    cityLabel.textContent = nom;
-    coordsDiv.textContent = `📍 ${lat}, ${lon}`;
-
-    mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
-    meteoFrame.src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
-    busFrame.src = `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&output=embed&layer=transit`;
-
-    genererResumeIA(nom);
-    evaluerTrafic(nom);
-    chargerActualites(nom);
-  });
-}
-
-function genererResumeIA(ville){
-  const phrases=[
-    `Circulation fluide à ${ville}.`,
-    `Quelques ralentissements possibles à ${ville}.`,
-    `Perturbations signalées sur certaines lignes à ${ville}.`,
-    `Trafic surveillé à ${ville}.`
-  ];
-  iaResume.textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
-}
-
-function evaluerTrafic(ville){
-  const niveaux=['🟢 Trafic faible','🟠 Trafic moyen','🔴 Trafic élevé'];
-  alertBanner.textContent='🚦 '+niveaux[Math.floor(Math.random()*niveaux.length)]+' à '+ville;
-  alertBanner.style.display='block';
-}
-
-const fluxRSS = [
-  { source: 'Le JSL', url: 'https://www.lejsl.com/rss', villes: ['louhans','chalon','bresse'], badge:'🗞️ Le JSL' },
-  { source: 'Le Progrès', url: 'https://www.leprogres.fr/rss', villes: ['lyon','bourg','ain'], badge:'📰 Le Progrès' }
-];
-
-function chargerActualites(ville){
-  loadingActus.style.display = 'block';
-  actualitesDiv.innerHTML = '';
-
-  const villeLower = ville.toLowerCase();
-  let flux = fluxRSS.find(f => f.villes.some(v => villeLower.includes(v)));
-
-  let sourceLabel = '🗞️ Google News';
-  let rssUrl;
-
-  if(flux){
-    rssUrl = flux.url;
-    sourceLabel = flux.badge;
-  } else {
-    rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic bus grève accident')}&hl=fr&gl=FR&ceid=FR:fr`;
-  }
-
-  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
-  .then(res=>res.json())
-  .then(data=>{
-    actualitesDiv.innerHTML='';
-
-    data.items.slice(0,20).forEach(item=>{
-      const div=document.createElement('div');
-      div.className='actualiteItem';
-      div.innerHTML=`
-        <div class="title">${item.title}</div>
-        <div class="info">${sourceLabel}</div>
-        <a class="link" href="${item.link}" target="_blank">En savoir plus</a>
-      `;
-      actualitesDiv.appendChild(div);
-    });
-
-    loadingActus.style.display = 'none';
-    startScrolling();
-  });
-}
-
 function startScrolling(){
   if(scrollInterval) clearInterval(scrollInterval);
-
   scrollInterval = setInterval(()=>{
     if(!autoScroll) return;
-
     actualitesDiv.scrollTop += 1;
-
     if(actualitesDiv.scrollTop >= actualitesDiv.scrollHeight - actualitesDiv.clientHeight){
       actualitesDiv.scrollTop = 0;
     }
   }, 20);
 }
 
-actualitesDiv.addEventListener('mouseenter',()=>autoScroll=false);
-actualitesDiv.addEventListener('mouseleave',()=>autoScroll=true);
-actualitesDiv.addEventListener('touchstart',()=>autoScroll=false);
-actualitesDiv.addEventListener('touchend',()=>autoScroll=true);
+function rechercherVille(){
+  const ville = document.getElementById('adresse').value;
+  actualitesDiv.innerHTML = "Actualités pour " + ville;
+  startScrolling();
+}
 
-setInterval(rechercherVille,600000);
 window.onload=rechercherVille;
 </script>
 
