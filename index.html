@@ -24,7 +24,6 @@ body {
   background:var(--bg);
   color:var(--text);
   transition:0.5s;
-  padding-bottom: 50px;
 }
 
 header {
@@ -43,33 +42,50 @@ header h1 {
   gap:10px;
 }
 
-#logo { height:42px; cursor:pointer; }
+#logo {
+  height:42px;
+  cursor:pointer;
+  transition:transform 0.2s;
+}
 
-/* --- ZONE ALERTE CHAUFFEUR (Vient au dessus du contenu) --- */
+.logo-anim {
+  animation: logoBounce 0.6s ease;
+}
+
+@keyframes logoBounce {
+  0%   { transform:scale(1) rotate(0deg); }
+  25%  { transform:scale(1.2) rotate(-10deg); }
+  50%  { transform:scale(1.25) rotate(10deg); }
+  75%  { transform:scale(1.15) rotate(-5deg); }
+  100% { transform:scale(1) rotate(0deg); }
+}
+
+/* --- ZONE ALERTE CHAUFFEUR --- */
 #zoneAlerteChauffeur {
   display:none; 
   background:#ffeb3b; 
   color:#000; 
   padding:15px; 
   border-radius:12px; 
-  margin:15px; 
+  margin:10px; 
   border-left:8px solid #f57f17; 
   font-weight:bold; 
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.01); }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 127, 23, 0.4); }
+  50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(245, 127, 23, 0); }
   100% { transform: scale(1); }
 }
+
+header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem;}
 
 section {
   background:var(--panel);
   margin:1rem;
-  padding:1.5rem;
+  padding:1rem;
   border-radius:14px;
 }
 
@@ -79,53 +95,98 @@ section {
   gap:1rem;
 }
 
-h2 {color:var(--accent); margin-top:0; font-size: 1.2rem;}
+h2 {color:var(--accent); margin-top:0;}
 
 input, button {
   width:100%;
-  padding:12px;
+  padding:10px;
   border-radius:10px;
   border:none;
   font-size:0.95rem;
-  margin-bottom:10px;
-  box-sizing: border-box;
+  margin-bottom:0.5rem;
 }
 
 button {
   background:var(--accent);
-  color: #000;
   font-weight:bold;
   cursor:pointer;
-  transition: 0.2s;
 }
-button:hover { filter: brightness(1.2); }
 
 iframe {
   width:100%;
-  height:300px;
+  height:320px;
   border:none;
   border-radius:12px;
-  background:#1e293b;
+  background:#000;
 }
 
 .clock {
-  font-size:3rem;
+  font-size:2.5rem;
   text-align:center;
   font-weight:bold;
-  color: var(--text);
+}
+
+.recherche-box {max-width:360px;}
+
+#alertBanner {
+  display:none;
+  background:#dc2626;
+  color:white;
+  padding:12px;
+  border-radius:10px;
+  font-weight:bold;
+  text-align:center;
+  margin-bottom:10px;
+}
+
+#iaResume {
+  background:var(--panel);
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:10px;
+  font-size:1rem;
+  color:#cbd5f5;
 }
 
 #actualites {
-  background:rgba(0,0,0,0.2);
+  background:var(--panel);
   padding:10px;
   border-radius:10px;
-  max-height:200px;
+  color:#cbd5f5;
+  height:180px;
   overflow-y:auto;
 }
 
-.actualiteItem {
-  padding:10px 0;
-  border-bottom: 1px solid #334155;
+.actualiteItem {margin-bottom:18px;}
+.actualiteItem .title {font-size:1.1rem; font-weight:bold;}
+
+.actualiteItem .link {
+  display:inline-block;
+  margin-top:6px;
+  padding:6px 10px;
+  font-size:0.95rem;
+  color:#38bdf8;
+  font-weight:bold;
+  text-decoration:none;
+  border-radius:8px;
+}
+
+#toggleScrollBtn {
+  width:auto;
+  padding:6px 12px;
+  font-size:0.9rem;
+}
+
+#backToTopBtn {
+  background:#334155;
+  color:white;
+}
+
+footer {
+  text-align:center;
+  padding:1rem;
+  font-size:0.85rem;
+  color:#64748b;
 }
 
 #accesPrive{
@@ -135,28 +196,33 @@ iframe {
   background:#1e293b;
   color:white;
   border:none;
-  width:45px;
-  height:45px;
+  width:42px;
+  height:42px;
   border-radius:50%;
   cursor:pointer;
+  opacity:0.55;
+  transition:0.3s;
   z-index:1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+  font-size:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
-footer { text-align: center; margin-top: 20px; opacity: 0.6; font-size: 0.8rem; }
+#accesPrive:hover{ opacity:1; transform:scale(1.08); }
 </style>
 </head>
 
 <body>
-
-<button id="accesPrive" onclick="ouvrirAcces()">🔒</button>
+<button id="accesPrive" title="Accès Chauffeur">🔒</button>
 
 <header>
-  <h1>🚌 Abribus connecté</h1>
-  <p id="cityLabel">Chargement de la ville...</p>
+  <h1>
+    <img id="logo" src="logo.png" alt="Logo Abribus">
+    🚌 Abribus connecté
+  </h1>
+  <p id="cityLabel">Louhans (71500)</p>
 </header>
 
 <div id="zoneAlerteChauffeur">
@@ -164,149 +230,218 @@ footer { text-align: center; margin-top: 20px; opacity: 0.6; font-size: 0.8rem; 
 </div>
 
 <section>
-  <div class="clock" id="clock">00:00</div>
+  <div class="clock" id="clock">--:--</div>
 </section>
 
-<div class="grid">
-  <section>
-    <h2>📍 Ma Position</h2>
-    <input id="adresse" value="Louhans 71500" placeholder="Entrez une ville...">
-    <button onclick="rechercherVille()">Mettre à jour l'abribus</button>
-  </section>
-
-  <section>
-    <h2>🗺️ Carte locale</h2>
+<section class="grid">
+  <div class="recherche-box">
+    <h2>Recherche de ville</h2>
+    <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+    <button onclick="rechercherVille()">Mettre à jour</button>
+    <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
+    <p id="coords"></p>               
+  </div>
+  <div>
+    <h2>Carte & arrêts de bus</h2>
     <iframe id="map"></iframe>
-  </section>
-</div>
+  </div>
+</section>
 
-<div class="grid">
-  <section>
-    <h2>🌦️ Météo en direct</h2>
+<section class="grid">
+  <div>
+    <h2>🌦 Météo</h2>
     <iframe id="meteoFrame"></iframe>
-  </section>
-
-  <section>
-    <h2>🚌 Trafic & Bus</h2>
-    <div id="prochainBus" style="color:#38bdf8; font-weight:bold; font-size:1.2rem; padding:10px; border: 1px solid #38bdf8; border-radius: 8px;">
-      🕒 Chargement des horaires...
+  </div>
+  <div>
+    <h2>🚌 Horaires bus</h2>
+    <iframe id="busFrame"></iframe>
+    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;color:#38bdf8;font-weight:bold;background:rgba(56,189,248,0.1);padding:10px;border-radius:8px;">
+      🕒 Prochain bus : calcul en cours...
     </div>
-    <p style="font-size:0.9rem; margin-top:10px; opacity:0.8;">Le prochain passage est estimé selon les conditions de circulation.</p>
-  </section>
-</div>
+  </div>
+</section>
 
 <section>
-  <h2>📰 Actualités de la ville</h2>
+  <h2 style="display:flex;align-items:center;gap:10px;">
+    📰 Actualités locales & trafic
+    <button id="toggleScrollBtn">⏸ Pause</button>
+  </h2>
+
+  <div id="alertBanner"></div>
+  <div id="iaResume"></div>
+
+  <div id="loadingActus" style="display:none;opacity:0.7;">
+    ⏳ Chargement des actualités…
+  </div>
+
   <div id="actualites"></div>
+
+  <button id="backToTopBtn" style="display:none;margin-top:8px;">
+    ⬆ Revenir en haut
+  </button>
 </section>
 
-<footer>
-  Projet STI2D SIN - Mr PERRIN Antonin - 2026<br>
-  <a href="infos.html" style="color:var(--accent); text-decoration: none;">En savoir plus sur le projet</a>
-</footer>
-
 <script>
-// --- LOGIQUE HORLOGE ---
-function updateClock(){
-  const n = new Date();
-  document.getElementById('clock').textContent = n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-}
-setInterval(updateClock, 1000); 
-updateClock();
+// --- ANIMATION LOGO ---
+const logo = document.getElementById("logo");
+logo.addEventListener("click", () => {
+  logo.classList.remove("logo-anim");
+  void logo.offsetWidth; 
+  logo.classList.add("logo-anim");
+});
 
-// --- RECHERCHE VILLE ET MISES A JOUR ---
+// --- HORLOGE ---
+function updateClock(){
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  checkNightMode();
+}
+setInterval(updateClock,1000); updateClock();
+
+// --- MODE NUIT AUTOMATIQUE ---
+function checkNightMode(){
+  const heure = new Date().getHours();
+  document.body.classList.toggle("night", heure >= 19 || heure <= 7);
+}
+
+// --- VARIABLES ET DOM ---
+let autoScroll = true;
+let scrollInterval = null;
+const mapFrame=document.getElementById('map');
+const meteoFrame=document.getElementById('meteoFrame');
+const busFrame=document.getElementById('busFrame');
+const cityLabel=document.getElementById('cityLabel');
+const coordsDiv=document.getElementById('coords');
+const alertBanner=document.getElementById('alertBanner');
+const iaResume=document.getElementById('iaResume');
+const actualitesDiv=document.getElementById('actualites');
+const toggleScrollBtn=document.getElementById('toggleScrollBtn');
+const backToTopBtn=document.getElementById('backToTopBtn');
+const loadingActus=document.getElementById('loadingActus');
+
+// --- RECHERCHE VILLE ---
 function rechercherVille(){
   const villeInput = document.getElementById('adresse').value;
 
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(villeInput)}`)
   .then(r => r.json())
   .then(d => {
-    if(!d.length) return;
+    if(!d.length) return alert('Ville introuvable');
 
     const lat = d[0].lat;
     const lon = d[0].lon;
     const nom = d[0].display_name.split(',')[0];
 
-    // Mise à jour des textes
-    document.getElementById('cityLabel').textContent = nom + " (" + villeInput.match(/\d+/g) + ")";
-    
-    // Mise à jour des Iframes sans recharger toute la page
-    document.getElementById('map').src = `https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(lon)-0.01},${parseFloat(lat)-0.01},${parseFloat(lon)+0.01},${parseFloat(lat)+0.01}&layer=mapnik`;
-    document.getElementById('meteoFrame').src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+    cityLabel.textContent = nom;
+    coordsDiv.textContent = `📍 ${lat}, ${lon}`;
 
-    // Sauvegarde pour le chauffeur
-    localStorage.setItem("villeSauvegardee", nom);
-    
-    // Vérification immédiate
-    verifierAlertesChauffeur();
+    mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
+    meteoFrame.src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+    busFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(nom + " bus station")}&z=15&output=embed`;
+
+    genererResumeIA(nom);
+    evaluerTrafic(nom);
     chargerActualites(nom);
+    
+    // Sauvegarde et Vérification des alertes
+    localStorage.setItem("villeSauvegardee", villeInput);
+    verifierAlertesChauffeur();
+    verifierProchainBusManuel();
   });
 }
 
-// --- SYSTEME D'ALERTE CHAUFFEUR (NON-DESTRUCTIF) ---
+// --- ALERTES CHAUFFEUR ---
 function verifierAlertesChauffeur() {
     const zone = document.getElementById("zoneAlerteChauffeur");
     const texte = document.getElementById("texteAlerte");
-    const villeAffichee = document.getElementById('cityLabel').textContent.toLowerCase();
+    const villeAffichee = cityLabel.textContent;
     
-    const rawData = localStorage.getItem("alerteAbribus");
+    const data = localStorage.getItem("alerteAbribus");
     
-    if (rawData) {
-        try {
-            const alerte = JSON.parse(rawData);
-            const villeCible = alerte.villeCible.toLowerCase();
-
-            // Si la ville correspond, on montre le bandeau, sinon on le cache
-            if (villeAffichee.includes(villeCible) || villeCible.includes(villeAffichee)) {
-                zone.style.display = "block";
-                texte.innerHTML = `⚠️ MESSAGE CHAUFFEUR (${alerte.heure}) : ${alerte.texte}`;
-            } else {
-                zone.style.display = "none";
-            }
-        } catch (e) { 
-            console.log("Erreur de lecture alerte");
-            zone.style.display = "none"; 
+    if (data) {
+        const alerte = JSON.parse(data);
+        // On affiche si le message contient le nom de la ville
+        if (alerte.texte.includes(villeAffichee) || alerte.villeCible === villeAffichee) {
+            zone.style.display = "block";
+            texte.innerHTML = `⚠️ MESSAGE CHAUFFEUR (${alerte.heure}) : ${alerte.texte}`;
+        } else {
+            zone.style.display = "none";
         }
     } else {
         zone.style.display = "none";
     }
 }
 
-// Scanne le serveur (localStorage) toutes les 3 secondes pour les nouveaux messages
-setInterval(verifierAlertesChauffeur, 3000);
+function verifierProchainBusManuel() {
+    const heureManuelle = localStorage.getItem("prochainBus");
+    if(heureManuelle) {
+        document.getElementById("prochainBus").textContent = `🕒 Prochain bus : ${heureManuelle} (Signalé par chauffeur)`;
+    }
+}
+
+// --- LOGIQUE IA / TRAFIC ---
+function genererResumeIA(ville){
+  const phrases=[`Circulation fluide à ${ville}.`,`Ralentissements possibles à ${ville}.`,`Trafic surveillé à ${ville}.` ];
+  iaResume.textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
+}
+
+function evaluerTrafic(ville){
+  const niveaux=['🟢 Trafic faible','🟠 Trafic moyen','🔴 Trafic élevé'];
+  alertBanner.textContent='🚦 '+niveaux[Math.floor(Math.random()*niveaux.length)]+' à '+ville;
+  alertBanner.style.display='block';
+}
 
 // --- ACTUALITÉS ---
 function chargerActualites(ville){
-  const actusDiv = document.getElementById('actualites');
-  actusDiv.innerHTML = '⏳ Chargement des actus...';
-  
-  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}&hl=fr`)}`)
+  loadingActus.style.display = 'block';
+  actualitesDiv.innerHTML = '';
+  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
+
+  fetch(rssUrl)
   .then(res=>res.json())
   .then(data=>{
-    actusDiv.innerHTML = '';
-    data.items.slice(0,5).forEach(item=>{
-      const div = document.createElement('div');
-      div.className = 'actualiteItem';
-      div.innerHTML = `<strong>•</strong> ${item.title}`;
-      actusDiv.appendChild(div);
+    data.items.slice(0,10).forEach(item=>{
+      const div=document.createElement('div');
+      div.className='actualiteItem';
+      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
+      actualitesDiv.appendChild(div);
     });
+    loadingActus.style.display = 'none';
+    startScrolling();
   });
 }
 
-// --- ACCÈS PRIVÉ ---
-function ouvrirAcces() {
-  if(prompt("Code chauffeur :") === "jesuischauffeur") {
-    window.location.href = "chauffeur.html";
-  }
+function startScrolling(){
+  if(scrollInterval) clearInterval(scrollInterval);
+  scrollInterval = setInterval(()=>{
+    if(autoScroll) actualitesDiv.scrollTop += 1;
+    if(actualitesDiv.scrollTop >= actualitesDiv.scrollHeight - actualitesDiv.clientHeight) actualitesDiv.scrollTop = 0;
+  }, 30);
 }
 
-// --- INITIALISATION AU CHARGEMENT ---
+// --- EVENTS ---
+toggleScrollBtn.addEventListener('click', () => {
+  autoScroll = !autoScroll;
+  toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
+});
+
+document.getElementById("accesPrive").addEventListener("click", () => {
+  if(prompt("Code d'accès chauffeur :") === "jesuischauffeur") window.location.href = "chauffeur.html";
+  else alert("Code incorrect");
+});
+
+// --- INITIALISATION ---
 window.onload = () => {
-  const v = localStorage.getItem("villeSauvegardee") || "Louhans";
-  document.getElementById("adresse").value = v;
+  const v = localStorage.getItem("villeSauvegardee");
+  if(v) document.getElementById("adresse").value = v;
   rechercherVille();
 };
 </script>
 
+<footer>
+  Abribus intelligent – STI2D / SIN<br>
+  <a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
+</footer>
 </body>
 </html>
