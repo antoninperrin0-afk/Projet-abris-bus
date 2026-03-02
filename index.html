@@ -282,11 +282,13 @@ function updateClock(){
 setInterval(updateClock,1000); updateClock();
 
 // Mode nuit
+// ### MODE NUIT SELON HEURE REELLE ###
 function checkNightMode(){
-  const h=new Date().getHours();
-  document.body.classList.toggle('night',h>=20||h<=6);
+  const heure = new Date().getHours();
+
+  // nuit entre 19h et 7h (plus réaliste)
+  document.body.classList.toggle("night", heure >= 19 || heure <= 7);
 }
-setInterval(checkNightMode,60000); checkNightMode();
 
 // Variables globales
 let autoScroll = true;
@@ -443,6 +445,7 @@ Abribus intelligent – STI2D / SIN<br>
 </footer>
 </body>
 </html>
+
 
 
 
