@@ -220,34 +220,14 @@ footer {
     <button onclick="rechercherVille()">Mettre à jour</button>
     <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
     <p id="coords"></p>
+    
   </div>
   
   <div>
     <h2>Carte & arrêts de bus</h2>
     <iframe id="map"></iframe>
   </div>
- / ### GEOLOCALISATION UTILISATEUR ###
-function localiserAbribus(){
-  if(!navigator.geolocation){
-    alert("Géolocalisation non supportée");
-    return;
-  }
 
-  navigator.geolocation.getCurrentPosition(position=>{
-    const lat = position.coords.latitude;
-    const lon = position.coords.longitude;
-
-    // affiche la position sur la carte
-    mapFrame.src =
-      `https://www.google.com/maps?q=bus+station&ll=${lat},${lon}&z=15&output=embed`;
-
-    cityLabel.textContent = "Abribus le plus proche";
-    coordsDiv.textContent = `📍 ${lat}, ${lon}`;
-
-  }, ()=>{
-    alert("Position non disponible");
-  });
-}
 </section>
 
 <section class="grid">
@@ -466,6 +446,7 @@ Abribus intelligent – STI2D / SIN<br>
 </footer>
 </body>
 </html>
+
 
 
 
