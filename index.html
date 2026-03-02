@@ -33,7 +33,6 @@ header {
   border-bottom:3px solid var(--accent);
 }
 
-/* ALIGNEMENT LOGO + TEXTE */
 header h1 {
   margin:0;
   font-size:1.8rem;
@@ -43,14 +42,12 @@ header h1 {
   gap:10px;
 }
 
-/* LOGO */
 #logo {
   height:42px;
   cursor:pointer;
   transition:transform 0.2s;
 }
 
-/* ANIMATION */
 .logo-anim {
   animation: logoBounce 0.6s ease;
 }
@@ -61,6 +58,26 @@ header h1 {
   50%  { transform:scale(1.25) rotate(10deg); }
   75%  { transform:scale(1.15) rotate(-5deg); }
   100% { transform:scale(1) rotate(0deg); }
+}
+
+/* --- ZONE ALERTE CHAUFFEUR --- */
+#zoneAlerteChauffeur {
+  display:none; 
+  background:#ffeb3b; 
+  color:#000; 
+  padding:15px; 
+  border-radius:12px; 
+  margin:10px; 
+  border-left:8px solid #f57f17; 
+  font-weight:bold; 
+  text-align: center;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 127, 23, 0.4); }
+  50% { transform: scale(1.01); box-shadow: 0 0 0 10px rgba(245, 127, 23, 0); }
+  100% { transform: scale(1); }
 }
 
 header p {margin:0.2rem 0 0; color:#94a3b8; font-size:1rem;}
@@ -171,6 +188,7 @@ footer {
   font-size:0.85rem;
   color:#64748b;
 }
+
 #accesPrive{
   position:fixed;
   top:15px;
@@ -192,15 +210,13 @@ footer {
   box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
-#accesPrive:hover{
-  opacity:1;
-  transform:scale(1.08);
-}
+#accesPrive:hover{ opacity:1; transform:scale(1.08); }
 </style>
 </head>
 
 <body>
-<button id="accesPrive">🔒</button>
+<button id="accesPrive" title="Accès Chauffeur">🔒</button>
+
 <header>
   <h1>
     <img id="logo" src="logo.png" alt="Logo Abribus">
@@ -208,17 +224,11 @@ footer {
   </h1>
   <p id="cityLabel">Louhans (71500)</p>
 </header>
-<div id="zoneAlerteChauffeur" style="display:none; background:#ffeb3b; color:#000; padding:15px; border-radius:12px; margin:10px; border-left:8px solid #f57f17; font-weight:bold; animation: pulse 2s infinite;">
+
+<div id="zoneAlerteChauffeur">
     <span id="texteAlerte"></span>
 </div>
 
-<style>
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.02); }
-  100% { transform: scale(1); }
-}
-</style>
 <section>
   <div class="clock" id="clock">--:--</div>
 </section>
@@ -235,7 +245,6 @@ footer {
     <h2>Carte & arrêts de bus</h2>
     <iframe id="map"></iframe>
   </div>
-
 </section>
 
 <section class="grid">
@@ -246,9 +255,9 @@ footer {
   <div>
     <h2>🚌 Horaires bus</h2>
     <iframe id="busFrame"></iframe>
-    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;font-weight:bold;">
-🕒 Prochain bus : calcul en cours...
-</div>
+    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;color:#38bdf8;font-weight:bold;background:rgba(56,189,248,0.1);padding:10px;border-radius:8px;">
+      🕒 Prochain bus : calcul en cours...
+    </div>
   </div>
 </section>
 
@@ -271,37 +280,34 @@ footer {
     ⬆ Revenir en haut
   </button>
 </section>
-<script>
-// ANIMATION LOGO AU CLIC
-const logo = document.getElementById("logo");
 
+<script>
+// --- ANIMATION LOGO ---
+const logo = document.getElementById("logo");
 logo.addEventListener("click", () => {
   logo.classList.remove("logo-anim");
   void logo.offsetWidth; 
   logo.classList.add("logo-anim");
 });
 
-// Horloge
+// --- HORLOGE ---
 function updateClock(){
   const n=new Date();
   document.getElementById('clock').textContent=
     n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  checkNightMode();
 }
 setInterval(updateClock,1000); updateClock();
 
-// Mode nuit
-// ### MODE NUIT SELON HEURE REELLE ###
+// --- MODE NUIT AUTOMATIQUE ---
 function checkNightMode(){
   const heure = new Date().getHours();
-
-  // nuit entre 19h et 7h (plus réaliste)
   document.body.classList.toggle("night", heure >= 19 || heure <= 7);
 }
 
-// Variables globales
+// --- VARIABLES ET DOM ---
 let autoScroll = true;
 let scrollInterval = null;
-
 const mapFrame=document.getElementById('map');
 const meteoFrame=document.getElementById('meteoFrame');
 const busFrame=document.getElementById('busFrame');
@@ -314,28 +320,11 @@ const toggleScrollBtn=document.getElementById('toggleScrollBtn');
 const backToTopBtn=document.getElementById('backToTopBtn');
 const loadingActus=document.getElementById('loadingActus');
 
-// Bouton pause auto-scroll
-toggleScrollBtn.addEventListener('click', () => {
-  autoScroll = !autoScroll;
-  toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
-});
-
-// Bouton retour en haut
-actualitesDiv.addEventListener('scroll', () => {
-  backToTopBtn.style.display = actualitesDiv.scrollTop > 50 ? 'block' : 'none';
-});
-
-backToTopBtn.addEventListener('click', () => {
-  autoScroll = false;
-  toggleScrollBtn.textContent = '▶ Auto';
-  actualitesDiv.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// Recherche ville
+// --- RECHERCHE VILLE ---
 function rechercherVille(){
-  const ville = document.getElementById('adresse').value;
+  const villeInput = document.getElementById('adresse').value;
 
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`)
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(villeInput)}`)
   .then(r => r.json())
   .then(d => {
     if(!d.length) return alert('Ville introuvable');
@@ -347,26 +336,53 @@ function rechercherVille(){
     cityLabel.textContent = nom;
     coordsDiv.textContent = `📍 ${lat}, ${lon}`;
 
-    mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
+    mapFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
     meteoFrame.src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
-    busFrame.src = `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&output=embed&layer=transit`;
+    busFrame.src = `https://maps.google.com/maps?q=${encodeURIComponent(nom + " bus station")}&z=15&output=embed`;
 
     genererResumeIA(nom);
     evaluerTrafic(nom);
     chargerActualites(nom);
+    
+    // Sauvegarde et Vérification des alertes
+    localStorage.setItem("villeSauvegardee", villeInput);
+    verifierAlertesChauffeur();
+    verifierProchainBusManuel();
   });
-
-  // ### SAUVEGARDE VILLE ###
-  localStorage.setItem("villeSauvegardee", ville);
 }
 
+// --- ALERTES CHAUFFEUR ---
+function verifierAlertesChauffeur() {
+    const zone = document.getElementById("zoneAlerteChauffeur");
+    const texte = document.getElementById("texteAlerte");
+    const villeAffichee = cityLabel.textContent;
+    
+    const data = localStorage.getItem("alerteAbribus");
+    
+    if (data) {
+        const alerte = JSON.parse(data);
+        // On affiche si le message contient le nom de la ville
+        if (alerte.texte.includes(villeAffichee) || alerte.villeCible === villeAffichee) {
+            zone.style.display = "block";
+            texte.innerHTML = `⚠️ MESSAGE CHAUFFEUR (${alerte.heure}) : ${alerte.texte}`;
+        } else {
+            zone.style.display = "none";
+        }
+    } else {
+        zone.style.display = "none";
+    }
+}
+
+function verifierProchainBusManuel() {
+    const heureManuelle = localStorage.getItem("prochainBus");
+    if(heureManuelle) {
+        document.getElementById("prochainBus").textContent = `🕒 Prochain bus : ${heureManuelle} (Signalé par chauffeur)`;
+    }
+}
+
+// --- LOGIQUE IA / TRAFIC ---
 function genererResumeIA(ville){
-  const phrases=[
-    `Circulation fluide à ${ville}.`,
-    `Quelques ralentissements possibles à ${ville}.`,
-    `Perturbations signalées sur certaines lignes à ${ville}.`,
-    `Trafic surveillé à ${ville}.`
-  ];
+  const phrases=[`Circulation fluide à ${ville}.`,`Ralentissements possibles à ${ville}.`,`Trafic surveillé à ${ville}.` ];
   iaResume.textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
 }
 
@@ -376,44 +392,21 @@ function evaluerTrafic(ville){
   alertBanner.style.display='block';
 }
 
-const fluxRSS = [
-  { source: 'Le JSL', url: 'https://www.lejsl.com/rss', villes: ['louhans','chalon','bresse'], badge:'🗞️ Le JSL' },
-  { source: 'Le Progrès', url: 'https://www.leprogres.fr/rss', villes: ['lyon','bourg','ain'], badge:'📰 Le Progrès' }
-];
-
+// --- ACTUALITÉS ---
 function chargerActualites(ville){
   loadingActus.style.display = 'block';
   actualitesDiv.innerHTML = '';
+  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
 
-  const villeLower = ville.toLowerCase();
-  let flux = fluxRSS.find(f => f.villes.some(v => villeLower.includes(v)));
-
-  let sourceLabel = '🗞️ Google News';
-  let rssUrl;
-
-  if(flux){
-    rssUrl = flux.url;
-    sourceLabel = flux.badge;
-  } else {
-    rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic bus grève accident')}&hl=fr&gl=FR&ceid=FR:fr`;
-  }
-
-  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+  fetch(rssUrl)
   .then(res=>res.json())
   .then(data=>{
-    actualitesDiv.innerHTML='';
-
-    data.items.slice(0,20).forEach(item=>{
+    data.items.slice(0,10).forEach(item=>{
       const div=document.createElement('div');
       div.className='actualiteItem';
-      div.innerHTML=`
-        <div class="title">${item.title}</div>
-        <div class="info">${sourceLabel}</div>
-        <a class="link" href="${item.link}" target="_blank">En savoir plus</a>
-      `;
+      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
       actualitesDiv.appendChild(div);
     });
-
     loadingActus.style.display = 'none';
     startScrolling();
   });
@@ -421,46 +414,34 @@ function chargerActualites(ville){
 
 function startScrolling(){
   if(scrollInterval) clearInterval(scrollInterval);
-
   scrollInterval = setInterval(()=>{
-    if(!autoScroll) return;
-
-    actualitesDiv.scrollTop += 1;
-
-    if(actualitesDiv.scrollTop >= actualitesDiv.scrollHeight - actualitesDiv.clientHeight){
-      actualitesDiv.scrollTop = 0;
-    }
-  }, 20);
+    if(autoScroll) actualitesDiv.scrollTop += 1;
+    if(actualitesDiv.scrollTop >= actualitesDiv.scrollHeight - actualitesDiv.clientHeight) actualitesDiv.scrollTop = 0;
+  }, 30);
 }
 
-actualitesDiv.addEventListener('mouseenter',()=>autoScroll=false);
-actualitesDiv.addEventListener('mouseleave',()=>autoScroll=true);
-actualitesDiv.addEventListener('touchstart',()=>autoScroll=false);
-actualitesDiv.addEventListener('touchend',()=>autoScroll=true);
+// --- EVENTS ---
+toggleScrollBtn.addEventListener('click', () => {
+  autoScroll = !autoScroll;
+  toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
+});
 
-setInterval(rechercherVille,600000);
+document.getElementById("accesPrive").addEventListener("click", () => {
+  if(prompt("Code d'accès chauffeur :") === "jesuischauffeur") window.location.href = "chauffeur.html";
+  else alert("Code incorrect");
+});
 
-// ### RESTAURER DERNIERE VILLE ###
+// --- INITIALISATION ---
 window.onload = () => {
   const v = localStorage.getItem("villeSauvegardee");
   if(v) document.getElementById("adresse").value = v;
   rechercherVille();
 };
-
-document.getElementById("accesPrive").addEventListener("click", () => {
-  const code = prompt("Code d'accès chauffeur :");
-
-  if(code === "jesuischauffeur"){
-    window.location.href = "chauffeur.html";
-  }else if(code !== null){
-    alert("Code incorrect");
-  }
-});
 </script>
+
 <footer>
-Abribus intelligent – STI2D / SIN<br>
-<a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
+  Abribus intelligent – STI2D / SIN<br>
+  <a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
 </footer>
 </body>
 </html>
-
