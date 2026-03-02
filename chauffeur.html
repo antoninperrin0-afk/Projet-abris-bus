@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Espace Chauffeur</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+:root{
+  --bg:#020617;
+  --panel:#0f172a;
+  --text:#e5e7eb;
+  --accent:#38bdf8;
+}
+
+body{
+  margin:0;
+  font-family:Segoe UI, Arial, sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+
+/* ### ENTETE ### */
+header{
+  background:var(--panel);
+  padding:1rem;
+  text-align:center;
+  border-bottom:3px solid var(--accent);
+}
+
+h1{
+  margin:0;
+}
+
+/* ### BLOCS ### */
+section{
+  background:var(--panel);
+  margin:1rem;
+  padding:1rem;
+  border-radius:14px;
+}
+
+h2{
+  color:var(--accent);
+  margin-top:0;
+}
+
+/* ### INPUTS ### */
+input, textarea, button{
+  width:100%;
+  padding:10px;
+  margin-top:6px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:none;
+  font-size:1rem;
+}
+
+button{
+  background:var(--accent);
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* ### MESSAGE CONFIRMATION ### */
+#confirmation{
+  display:none;
+  background:#16a34a;
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+  text-align:center;
+}
+
+/* ### RETOUR ### */
+#retour{
+  background:#334155;
+  margin:1rem;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🔐 Espace Chauffeur</h1>
+  <p>Gestion de l’abribus connecté</p>
+</header>
+
+<section>
+  <h2>📢 Envoyer une alerte aux usagers</h2>
+
+  <!-- ### MESSAGE CHAUFFEUR ### -->
+  <textarea id="messageChauffeur" rows="4"
+  placeholder="Ex : Retard de 10 minutes ligne 2"></textarea>
+
+  <button onclick="envoyerAlerte()">Envoyer l’alerte</button>
+
+  <div id="confirmation">✔ Message envoyé aux usagers</div>
+</section>
+
+<section>
+  <h2>🚌 Prochain passage manuel</h2>
+
+  <!-- ### HEURE PROCHAIN BUS ### -->
+  <input type="time" id="heureBus">
+
+  <button onclick="mettreAJourBus()">Mettre à jour</button>
+</section>
+
+<section>
+  <h2>📊 Informations système</h2>
+
+  <p id="villeActuelle">Ville actuelle : ...</p>
+  <p id="derniereMaj">Dernière mise à jour : ...</p>
+</section>
+
+<button id="retour" onclick="retourAccueil()">⬅ Retour au panneau public</button>
+
+<script>
+
+// ############################################################
+// ### ENVOI ALERTE AUX USAGERS ###
+// ############################################################
+
+function envoyerAlerte(){
+  const message = document.getElementById("messageChauffeur").value;
+
+  if(!message){
+    alert("Veuillez écrire un message");
+    return;
+  }
+
+  // ### SAUVEGARDE MESSAGE POUR LA PAGE PUBLIQUE ###
+  localStorage.setItem("alerteAbribus", message);
+  localStorage.setItem("dateAlerte", new Date().toLocaleString("fr-FR"));
+
+  document.getElementById("confirmation").style.display="block";
+}
+
+
+// ############################################################
+// ### MISE A JOUR HEURE PROCHAIN BUS ###
+// ############################################################
+
+function mettreAJourBus(){
+  const heure = document.getElementById("heureBus").value;
+
+  if(!heure){
+    alert("Veuillez entrer une heure");
+    return;
+  }
+
+  localStorage.setItem("prochainBus", heure);
+  alert("Heure mise à jour");
+}
+
+
+// ############################################################
+// ### INFOS SYSTEME ###
+// ############################################################
+
+function chargerInfos(){
+  const ville = localStorage.getItem("villeAbribus") || "Non définie";
+  const maj = new Date().toLocaleString("fr-FR");
+
+  document.getElementById("villeActuelle").textContent =
+    "Ville actuelle : " + ville;
+
+  document.getElementById("derniereMaj").textContent =
+    "Dernière connexion : " + maj;
+}
+
+
+// ############################################################
+// ### RETOUR PAGE PRINCIPALE ###
+// ############################################################
+
+function retourAccueil(){
+  window.location.href = "index.html";
+}
+
+
+// ### INITIALISATION ###
+chargerInfos();
+
+</script>
+
+</body>
+</html>
