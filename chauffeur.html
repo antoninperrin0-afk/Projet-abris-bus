@@ -88,7 +88,60 @@ button{
 </header>
 
 <section>
+  <section>
   <h2>📢 Envoyer une alerte aux usagers</h2>
+  
+  <p style="font-size: 0.9rem; color: var(--accent);">Raccourcis rapides :</p>
+  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+    <button type="button" onclick="quickMessage('Retard de 5 min')">⏱️ +5 min</button>
+    <button type="button" onclick="quickMessage('Retard de 15 min')">⏱️ +15 min</button>
+    <button type="button" onclick="quickMessage('Bus complet')">🚌 Complet</button>
+    <button type="button" onclick="quickMessage('Ligne déviée')">⚠️ Déviation</button>
+  </div>
+
+  <textarea id="messageChauffeur" rows="3" placeholder="Ou tapez votre message personnalisé ici..."></textarea>
+
+  <button onclick="envoyerAlerte()" style="background: #16a34a;">🚀 Publier l'alerte</button>
+  <button onclick="effacerAlerte()" style="background: #dc2626; margin-top: 5px;">🗑️ Effacer l'alerte</button>
+
+  <div id="confirmation">✔ Message publié avec succès !</div>
+</section>
+
+<script>
+// --- NOUVELLES FONCTIONS ---
+
+function quickMessage(texte) {
+    const ville = localStorage.getItem("villeSauvegardee") || "Louhans";
+    document.getElementById("messageChauffeur").value = `[${ville}] ${texte}`;
+}
+
+function envoyerAlerte(){
+  const message = document.getElementById("messageChauffeur").value;
+  const ville = localStorage.getItem("villeSauvegardee") || "Louhans";
+
+  if(!message){
+    alert("Veuillez écrire un message");
+    return;
+  }
+
+  // On stocke un objet contenant le message et la ville concernée
+  const alerteData = {
+      texte: message,
+      villeCible: ville,
+      heure: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})
+  };
+
+  localStorage.setItem("alerteAbribus", JSON.stringify(alerteData));
+  
+  document.getElementById("confirmation").style.display="block";
+  setTimeout(() => { document.getElementById("confirmation").style.display="none"; }, 3000);
+}
+
+function effacerAlerte() {
+    localStorage.removeItem("alerteAbribus");
+    alert("Alerte supprimée");
+}
+</script>
 
   <!-- ### MESSAGE CHAUFFEUR ### -->
   <textarea id="messageChauffeur" rows="4"
