@@ -882,14 +882,4 @@ function verifierAlertesChauffeur() {
 
         const alerte = JSON.parse(data);
 
-        if (alerte.texte.includes(villeAffichee) || alerte.villeCible === villeAffichee) {
-
-            zone.style.display = "block";
-
-            texte.innerHTML = `⚠️ MESSAGE CHAUFFEUR (${alerte.heure}) : ${alerte.texte}`;
-
-        } else {
-
-            zone.style.display = "none";
-
-        }
+        if (alerte.texte.includes(villeAffichee) ||
