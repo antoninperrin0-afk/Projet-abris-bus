@@ -1,151 +1,149 @@
-// --- CONFIGURATION FIREBASE ---
-const urlFirebase = "https://abribus-32b7e-default-rtdb.europe-west1.firebasedatabase.app/airsmart.json";
+// ANIMATION LOGO AU CLIC
+const logo = document.getElementById("logo");
+logo.addEventListener("click", () => {
+  logo.classList.remove("logo-anim");
+  void logo.offsetWidth; 
+  logo.classList.add("logo-anim");
+});
 
-function recupererDonnee() {
-    fetch(urlFirebase)
-        .then(response => response.json())
-        .then(data => {
-            if(data) {
-                document.getElementById('temp').innerText = data.temperature + " °C";
-                document.getElementById('hum').innerText = data.humidite + " %";
-            }
-        })
-        .catch(err => console.error("Erreur Firebase:", err));
-}
-setInterval(recupererDonnee, 2000);
-recupererDonnee();
-
-// --- GESTION MODALE ---
-function ouvrirModal() {
-  document.getElementById("loginModal").style.display = "flex";
-  document.getElementById("passInput").focus();
-}
-function fermerModal() {
-  document.getElementById("loginModal").style.display = "none";
-  document.getElementById("passInput").value = "";
-}
-function validerCode() {
-  const code = document.getElementById("passInput").value;
-  if(code === "jesuischauffeur") {
-    window.location.href = "chauffeur.html";
-  } else {
-    alert("Code incorrect");
-    document.getElementById("passInput").value = "";
-  }
-}
-
-// --- HORLOGE ET MODE NUIT ---
+// Horloge
 function updateClock(){
-  const n = new Date();
-  const clockEl = document.getElementById('clock');
-  if(clockEl) clockEl.textContent = n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  checkNightMode();
+  const n=new Date();
+  document.getElementById('clock').textContent=
+    n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
 }
-setInterval(updateClock, 1000);
+setInterval(updateClock,1000);
 updateClock();
 
+// Mode nuit
 function checkNightMode(){
-  const heure = new Date().getHours();
-  document.body.classList.toggle("night", heure >= 19 || heure <= 7);
+  const h=new Date().getHours();
+  document.body.classList.toggle('night',h>=20||h<=6);
 }
+setInterval(checkNightMode,60000);
+checkNightMode();
 
-// --- RECHERCHE VILLE ET METEO ---
+// Variables globales
+let autoScroll = true;
+let scrollInterval = null;
+
+const mapFrame=document.getElementById('map');
+const meteoFrame=document.getElementById('meteoFrame');
+const busFrame=document.getElementById('busFrame');
+const cityLabel=document.getElementById('cityLabel');
+const coordsDiv=document.getElementById('coords');
+const alertBanner=document.getElementById('alertBanner');
+const iaResume=document.getElementById('iaResume');
+const actualitesDiv=document.getElementById('actualites');
+const toggleScrollBtn=document.getElementById('toggleScrollBtn');
+const backToTopBtn=document.getElementById('backToTopBtn');
+const loadingActus=document.getElementById('loadingActus');
+
+// Bouton pause auto-scroll
+toggleScrollBtn.addEventListener('click', () => {
+  autoScroll = !autoScroll;
+  toggleScrollBtn.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
+});
+
+// Bouton retour en haut
+actualitesDiv.addEventListener('scroll', () => {
+  backToTopBtn.style.display = actualitesDiv.scrollTop > 50 ? 'block' : 'none';
+});
+
+backToTopBtn.addEventListener('click', () => {
+  autoScroll = false;
+  toggleScrollBtn.textContent = '▶ Auto';
+  actualitesDiv.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// Recherche ville
 function rechercherVille(){
-  const villeInput = document.getElementById('adresse').value;
-  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(villeInput)}`)
+  const ville = document.getElementById('adresse').value;
+
+  fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(ville)}`)
   .then(r => r.json())
   .then(d => {
     if(!d.length) return alert('Ville introuvable');
+
     const lat = d[0].lat;
     const lon = d[0].lon;
     const nom = d[0].display_name.split(',')[0];
 
-    document.getElementById('cityLabel').textContent = nom;
-    document.getElementById('coords').textContent = `📍 ${lat}, ${lon}`;
-    document.getElementById('map').src = `https://maps.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
-    
-    // MISE A JOUR DYNAMIQUE DU WIDGET METEOBLUE
-    document.getElementById('meteoFrame').src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
-    
-    document.getElementById('busFrame').src = `https://maps.google.com/maps?q=${encodeURIComponent(nom + " bus station")}&z=15&output=embed`;
+    cityLabel.textContent = nom;
+    coordsDiv.textContent = `📍 ${lat}, ${lon}`;
+
+    mapFrame.src = `https://www.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
+    meteoFrame.src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+    busFrame.src = `https://www.google.com/maps?q=bus+${encodeURIComponent(nom)}&output=embed&layer=transit`;
 
     genererResumeIA(nom);
     evaluerTrafic(nom);
     chargerActualites(nom);
-    localStorage.setItem("villeSauvegardee", villeInput);
-    verifierAlertesChauffeur();
-    verifierProchainBusManuel();
   });
 }
 
-// --- LOGIQUE ALERTES & ACTUALITÉS ---
-let autoScroll = true;
-let scrollInterval = null;
-
-function verifierAlertesChauffeur() {
-    const zone = document.getElementById("zoneAlerteChauffeur");
-    const texte = document.getElementById("texteAlerte");
-    const villeAffichee = document.getElementById('cityLabel').textContent;
-    const data = localStorage.getItem("alerteAbribus");
-    if (data) {
-        const alerte = JSON.parse(data);
-        if (alerte.texte.includes(villeAffichee) || alerte.villeCible === villeAffichee) {
-            zone.style.display = "block";
-            texte.innerHTML = `⚠️ MESSAGE CHAUFFEUR (${alerte.heure}) : ${alerte.texte}`;
-        } else { zone.style.display = "none"; }
-    } else { zone.style.display = "none"; }
-}
-
-function verifierProchainBusManuel() {
-    const heureManuelle = localStorage.getItem("prochainBus");
-    if(heureManuelle) {
-        document.getElementById("prochainBus").textContent = `🕒 Prochain bus : ${heureManuelle} (Signalé par chauffeur)`;
-    }
-}
-
-function chargerActualites(ville){
-  const divActu = document.getElementById('actualites');
-  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
-  fetch(rssUrl).then(res=>res.json()).then(data=>{
-    divActu.innerHTML = '';
-    data.items.slice(0,10).forEach(item=>{
-      const div=document.createElement('div');
-      div.className='actualiteItem';
-      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
-      divActu.appendChild(div);
-    });
-    startScrolling();
-  });
-}
-
-function startScrolling(){
-  const divActu = document.getElementById('actualites');
-  if(scrollInterval) clearInterval(scrollInterval);
-  scrollInterval = setInterval(()=>{
-    if(autoScroll) divActu.scrollTop += 1;
-    if(divActu.scrollTop >= divActu.scrollHeight - divActu.clientHeight) divActu.scrollTop = 0;
-  }, 30);
-}
-
-document.getElementById('toggleScrollBtn').addEventListener('click', (e) => {
-  autoScroll = !autoScroll;
-  e.target.textContent = autoScroll ? '⏸ Pause' : '▶ Auto';
-});
-
+// IA résumé
 function genererResumeIA(ville){
-  const phrases=[`Circulation fluide à ${ville}.`,`Ralentissements possibles à ${ville}.`,`Trafic surveillé à ${ville}.` ];
-  document.getElementById('iaResume').textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
+  const phrases=[`Circulation fluide à ${ville}.`,`Quelques ralentissements possibles à ${ville}.`,`Trafic surveillé à ${ville}.`];
+  iaResume.textContent='🧠 Résumé IA : '+phrases[Math.floor(Math.random()*phrases.length)];
 }
 
+// Trafic
 function evaluerTrafic(ville){
   const niveaux=['🟢 Trafic faible','🟠 Trafic moyen','🔴 Trafic élevé'];
-  const banner = document.getElementById('alertBanner');
-  banner.textContent='🚦 '+niveaux[Math.floor(Math.random()*niveaux.length)]+' à '+ville;
-  banner.style.display='block';
+  alertBanner.textContent='🚦 '+niveaux[Math.floor(Math.random()*niveaux.length)]+' à '+ville;
+  alertBanner.style.display='block';
 }
 
-window.onload = () => {
-  const v = localStorage.getItem("villeSauvegardee");
-  if(v) document.getElementById("adresse").value = v;
-  rechercherVille();
-};
+// Actualités
+function chargerActualites(ville){
+  loadingActus.style.display = 'block';
+  actualitesDiv.innerHTML = '';
+
+  const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic bus grève accident')}&hl=fr&gl=FR&ceid=FR:fr`;
+
+  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+  .then(res=>res.json())
+  .then(data=>{
+    actualitesDiv.innerHTML='';
+    data.items.slice(0,20).forEach(item=>{
+      const div=document.createElement('div');
+      div.className='actualiteItem';
+      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">En savoir plus</a>`;
+      actualitesDiv.appendChild(div);
+    });
+    startScrolling();
+    loadingActus.style.display = 'none';
+  });
+}
+
+// Scroll automatique
+function startScrolling(){
+  if(scrollInterval) clearInterval(scrollInterval);
+  scrollInterval = setInterval(()=>{
+    if(!autoScroll) return;
+    actualitesDiv.scrollTop += 1;
+    if(actualitesDiv.scrollTop >= actualitesDiv.scrollHeight - actualitesDiv.clientHeight){
+      actualitesDiv.scrollTop = 0;
+    }
+  }, 20);
+}
+
+actualitesDiv.addEventListener('mouseenter',()=>autoScroll=false);
+actualitesDiv.addEventListener('mouseleave',()=>autoScroll=true);
+actualitesDiv.addEventListener('touchstart',()=>autoScroll=false);
+actualitesDiv.addEventListener('touchend',()=>autoScroll=true);
+
+setInterval(rechercherVille,600000);
+window.onload=rechercherVille;
+
+// Accès chauffeur (modale)
+document.getElementById("accesPrive").addEventListener("click", () => {
+  const code = prompt("Code d'accès chauffeur :");
+
+  if(code === "jesuischauffeur"){
+    window.location.href = "chauffeur.html";
+  } else if(code !== null){
+    alert("Code incorrect");
+  }
+});
