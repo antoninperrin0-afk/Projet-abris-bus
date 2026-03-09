@@ -6,83 +6,74 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-
-<!-- Bouton Accès Privé -->
-<button id="accesPrive" title="Accès Privé">🔒</button>
-
+<button id="accesPrive">🔒</button>
 <header>
-    <h1><img id="logo" src="logo.png" alt="Logo Abribus"> 🚌 Abribus connecté</h1>
-    <p id="cityLabel">Louhans (71500)</p>
+  <h1>
+    <img id="logo" src="logo.png" alt="Logo Abribus">
+    🚌 Abribus connecté
+  </h1>
+  <p id="cityLabel">Louhans (71500)</p>
 </header>
 
 <section>
-    <div class="clock" id="clock">--:--</div>
+  <div class="clock" id="clock">--:--</div>
 </section>
 
 <section class="grid">
-    <div class="recherche-box">
-        <h2>Recherche de ville</h2>
-        <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
-        <button onclick="rechercherVille()">Mettre à jour</button>
-        <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
-        <p id="coords"></p>
-    </div>
-    <div>
-        <h2>Carte & arrêts de bus</h2>
-        <iframe id="map"></iframe>
-    </div>
+  <div class="recherche-box">
+    <h2>Recherche de ville</h2>
+    <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+    <button onclick="rechercherVille()">Mettre à jour</button>
+    <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
+    <p id="coords"></p>               
+  </div>
+  <div>
+    <h2>Carte & arrêts de bus</h2>
+    <iframe id="map"></iframe>
+  </div>
 </section>
 
 <section class="grid">
-    <div>
-        <h2>🌦 Météo</h2>
-        <iframe id="meteoFrame"></iframe>
+  <div>
+    <h2>🌦 Météo</h2>
+    <iframe id="meteoFrame"></iframe>
+  </div>
+  <div>
+    <h2>🚌 Horaires bus</h2>
+    <iframe id="busFrame"></iframe>
+    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;font-weight:bold;">
+      🕒 Prochain bus : calcul en cours...
     </div>
-    <div>
-        <h2>🚌 Horaires bus</h2>
-        <iframe id="busFrame"></iframe>
-        <div id="prochainBus" class="bus-timer">🕒 Prochain bus : calcul en cours...</div>
-    </div>
+  </div>
 </section>
 
 <section>
-    <h2 class="flex-header">
-        📰 Actualités locales & trafic
-        <button id="toggleScrollBtn">⏸ Pause</button>
-    </h2>
-    <div id="alertBanner"></div>
-    <div id="iaResume"></div>
-    <div id="loadingActus" style="display:none;opacity:0.7;">⏳ Chargement...</div>
-    <div id="actualites"></div>
-    <button id="backToTopBtn" style="display:none;margin-top:8px;">⬆ Revenir en haut</button>
+  <h2 style="display:flex;align-items:center;gap:10px;">
+    📰 Actualités locales & trafic
+    <button id="toggleScrollBtn">⏸ Pause</button>
+  </h2>
+
+  <div id="alertBanner"></div>
+  <div id="iaResume"></div>
+
+  <div id="loadingActus" style="display:none;opacity:0.7;">
+    ⏳ Chargement des actualités…
+  </div>
+
+  <div id="actualites"></div>
+
+  <button id="backToTopBtn" style="display:none;margin-top:8px;">
+    ⬆ Revenir en haut
+  </button>
 </section>
+
+<script src="script.js"></script>
 
 <footer>
 Abribus intelligent – STI2D / SIN<br>
 <a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
 </footer>
-
-<script src="script.js"></script>
-
-<!-- Petit cadenas pour accéder aux pages privées -->
-<script>
-document.getElementById("accesPrive").addEventListener("click", () => {
-    const code = prompt("Entrez le mot de passe :");
-
-    if(code === null) return;
-
-    if(code === "jesuischauffeur") {
-        window.location.href = "chauffeur.html";
-    } else if(code === "jeuxjeuxjeux") {
-        window.location.href = "jeux.html";
-    } else if(code === "antoperso") {
-        window.location.href = "perso.html";
-    } else {
-        alert("Mot de passe incorrect !");
-    }
-});
-</script>
-
 </body>
 </html>
