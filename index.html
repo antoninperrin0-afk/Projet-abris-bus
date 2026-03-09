@@ -1,46 +1,87 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>🔒 Accès Pages Protégées</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
-<style>
-body { font-family: Arial, sans-serif; background:#0f172a; color:#e5e7eb; display:flex; justify-content:center; align-items:center; height:100vh; }
-.login-box { background:#020617; padding:30px; border-radius:15px; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.5); }
-input { padding:10px; width:80%; margin-bottom:10px; border-radius:8px; border:none; }
-button { padding:10px 20px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:bold; cursor:pointer; }
-</style>
+<meta charset="UTF-8" />
+<title> 🚌 Abribus connecté – Louhans</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="login-box">
-    <h2>🔐 Accès Pages</h2>
-    <p>Entrez votre mot de passe :</p>
-    <input type="password" id="passInput" placeholder="Mot de passe..." onkeydown="if(event.key==='Enter'){validerCode();}">
-    <br>
-    <button onclick="validerCode()">Entrer</button>
-</div>
+<!-- Bouton Accès Privé -->
+<button id="accesPrive" title="Accès Privé">🔒</button>
 
+<header>
+    <h1><img id="logo" src="logo.png" alt="Logo Abribus"> 🚌 Abribus connecté</h1>
+    <p id="cityLabel">Louhans (71500)</p>
+</header>
+
+<section>
+    <div class="clock" id="clock">--:--</div>
+</section>
+
+<section class="grid">
+    <div class="recherche-box">
+        <h2>Recherche de ville</h2>
+        <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+        <button onclick="rechercherVille()">Mettre à jour</button>
+        <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
+        <p id="coords"></p>
+    </div>
+    <div>
+        <h2>Carte & arrêts de bus</h2>
+        <iframe id="map"></iframe>
+    </div>
+</section>
+
+<section class="grid">
+    <div>
+        <h2>🌦 Météo</h2>
+        <iframe id="meteoFrame"></iframe>
+    </div>
+    <div>
+        <h2>🚌 Horaires bus</h2>
+        <iframe id="busFrame"></iframe>
+        <div id="prochainBus" class="bus-timer">🕒 Prochain bus : calcul en cours...</div>
+    </div>
+</section>
+
+<section>
+    <h2 class="flex-header">
+        📰 Actualités locales & trafic
+        <button id="toggleScrollBtn">⏸ Pause</button>
+    </h2>
+    <div id="alertBanner"></div>
+    <div id="iaResume"></div>
+    <div id="loadingActus" style="display:none;opacity:0.7;">⏳ Chargement...</div>
+    <div id="actualites"></div>
+    <button id="backToTopBtn" style="display:none;margin-top:8px;">⬆ Revenir en haut</button>
+</section>
+
+<footer>
+Abribus intelligent – STI2D / SIN<br>
+<a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
+</footer>
+
+<script src="script.js"></script>
+
+<!-- Petit cadenas pour accéder aux pages privées -->
 <script>
-// Hash SHA-256 exact des mots de passe
-const passwords = {
-    "chauffeur.html": "ed178b9b75f22c7b4fa8f3785a5ad2c8ce9f4a1cbba0387c1f0e41b9b20a1f18", // jesuischauffeur
-    "jeux.html": "dc9d414460b91a12112f7d334a05c6f0e1d84f4a3f87e2bbf7f4a91d6aa5b7d8",    // jeuxjeuxjeux
-    "perso.html": "0d2f83f7cdee0ff8a3db3b0c9c876b3b2a34c1f2c5d69f4c7e1a5f7b8c9d0e1f"     // antoperso
-};
+document.getElementById("accesPrive").addEventListener("click", () => {
+    const code = prompt("Entrez le mot de passe :");
 
-function validerCode(){
-    const code = document.getElementById("passInput").value;
-    const hash = sha256(code);
-    for(let page in passwords){
-        if(hash === passwords[page]){
-            window.location.href = page;
-            return;
-        }
+    if(code === null) return;
+
+    if(code === "jesuischauffeur") {
+        window.location.href = "chauffeur.html";
+    } else if(code === "jeuxjeuxjeux") {
+        window.location.href = "jeux.html";
+    } else if(code === "antoperso") {
+        window.location.href = "perso.html";
+    } else {
+        alert("Mot de passe incorrect !");
     }
-    alert("Mot de passe incorrect !");
-}
+});
 </script>
 
 </body>
