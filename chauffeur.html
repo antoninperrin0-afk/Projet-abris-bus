@@ -1,80 +1,51 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Espace Chauffeur</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<style>
-:root{ --bg:#020617; --panel:#0f172a; --text:#e5e7eb; --accent:#38bdf8; }
-body{ margin:0; font-family:sans-serif; background:var(--bg); color:var(--text); padding: 20px; }
-header{ background:var(--panel); padding:1rem; text-align:center; border-bottom:3px solid var(--accent); border-radius: 10px; }
-section{ background:var(--panel); margin-top:1rem; padding:1.5rem; border-radius:14px; }
-h2{ color:var(--accent); margin-top:0; }
-textarea, button{ width:100%; padding:12px; margin-top:10px; border-radius:10px; border:none; font-size:1rem; box-sizing: border-box; }
-button{ background:var(--accent); font-weight:bold; cursor:pointer; color: #000; }
-.btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.btn-sec { background: #334155; color: white; }
-#confirmation { display:none; background:#16a34a; padding:10px; border-radius:10px; margin-top:10px; text-align:center; }
-</style>
+<meta charset="UTF-8" />
+<title>🔑 Page Chauffeur – Abribus</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
 <header>
-  <h1>🔐 Espace Chauffeur</h1>
-  <p id="statutVille">Chargement de la ville...</p>
+<h1>🔑 Accès Chauffeur – Abribus Louhans</h1>
 </header>
 
 <section>
-  <h2>📢 Envoyer une alerte</h2>
-  <div class="btn-group">
-    <button type="button" class="btn-sec" onclick="quickMsg('Retard de 5 min')">⏱️ +5 min</button>
-    <button type="button" class="btn-sec" onclick="quickMsg('Retard de 15 min')">⏱️ +15 min</button>
-    <button type="button" class="btn-sec" onclick="quickMsg('Bus complet')">🚌 Complet</button>
-    <button type="button" class="btn-sec" onclick="quickMsg('Ligne déviée')">⚠️ Déviation</button>
-  </div>
+    <div id="zoneAlerteChauffeur" style="display:none;">
+        <span id="texteAlerte"></span>
+    </div>
 
-  <textarea id="messageChauffeur" rows="3" placeholder="Message personnalisé..."></textarea>
-  <button onclick="envoyerAlerte()" style="background: #22c55e;">🚀 Publier l'alerte</button>
-  <button onclick="effacerAlerte()" style="background: #dc2626; margin-top: 5px;">🗑️ Supprimer l'alerte</button>
-  
-  <div id="confirmation">✔ Message mis en ligne</div>
+    <div class="clock" id="clock">--:--</div>
+    <div class="sensor-box">
+        <div class="sensor-item">
+            <span class="sensor-label">TEMPÉRATURE</span>
+            <span class="sensor-value" id="temp">-- °C</span>
+        </div>
+        <div class="sensor-item">
+            <span class="sensor-label">HUMIDITÉ</span>
+            <span class="sensor-value" id="hum">-- %</span>
+        </div>
+    </div>
 </section>
 
-<button class="btn-sec" onclick="window.location.href='index.html'">⬅ Retour public</button>
+<section class="grid">
+    <div>
+        <h2>Carte & arrêts de bus</h2>
+        <iframe id="map"></iframe>
+    </div>
+    <div>
+        <h2>Horaires bus & Prochain bus</h2>
+        <iframe id="busFrame"></iframe>
+        <div id="prochainBus" class="bus-timer">🕒 Prochain bus : calcul en cours...</div>
+    </div>
+</section>
 
-<script>
-// Récupérer la ville configurée sur l'index
-const villeActuelle = localStorage.getItem("villeSauvegardee") || "Louhans";
-document.getElementById("statutVille").textContent = "Ville pilotée : " + villeActuelle;
+<footer>
+Chauffeur – Abribus Louhans
+</footer>
 
-function quickMsg(txt) {
-    document.getElementById("messageChauffeur").value = txt;
-}
-
-function envoyerAlerte(){
-  const msg = document.getElementById("messageChauffeur").value;
-  if(!msg) return alert("Écrivez un message");
-
-  const alerteData = {
-      texte: msg,
-      villeCible: villeActuelle,
-      heure: new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute:'2-digit'})
-  };
-
-  localStorage.setItem("alerteAbribus", JSON.stringify(alerteData));
-  
-  const conf = document.getElementById("confirmation");
-  conf.style.display="block";
-  setTimeout(() => conf.style.display="none", 3000);
-}
-
-function effacerAlerte() {
-    localStorage.removeItem("alerteAbribus");
-    alert("Alerte effacée");
-}
-</script>
-
+<script src="chauffeur.js"></script>
 </body>
 </html>
