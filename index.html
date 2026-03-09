@@ -24,7 +24,7 @@
 
     <header>
         <h1><img id="logo" src="logo.png" alt="Logo Abribus"> 🚌 Abribus connecté</h1>
-        <p id="cityLabel">Louhans (71500)</p>
+        <p id="cityLabel">Paris (75000)</p>
     </header>
 
     <div id="zoneAlerteChauffeur"><span id="texteAlerte"></span></div>
@@ -46,7 +46,7 @@
     <section class="grid">
         <div class="recherche-box">
             <h2>Recherche de ville</h2>
-            <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+            <input id="adresse" value="Paris 75000" onkeydown="if(event.key==='Enter'){rechercherVille();}">
             <button onclick="rechercherVille()">Mettre à jour</button>
             <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
             <p id="coords"></p>               
@@ -60,7 +60,7 @@
     <section class="grid">
         <div>
             <h2>🌦 Météo</h2>
-            <iframe id="meteoFrame"></iframe>
+            <iframe id="meteoFrame" src="https://www.meteoblue.com/fr/meteo/widget/three/48.8566,2.3522"></iframe>
         </div>
         <div>
             <h2>🚌 Horaires bus</h2>
