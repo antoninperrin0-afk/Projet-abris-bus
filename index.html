@@ -1,91 +1,46 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <title> 🚌 Abribus connecté – Louhans</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>🔒 Accès Pages</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-sha256/0.9.0/sha256.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; background:#0f172a; color:#e5e7eb; display:flex; justify-content:center; align-items:center; height:100vh; }
+        .login-box { background:#020617; padding:30px; border-radius:15px; text-align:center; box-shadow:0 0 20px rgba(0,0,0,0.5); }
+        input { padding:10px; width:80%; margin-bottom:10px; border-radius:8px; border:none; }
+        button { padding:10px 20px; border:none; border-radius:8px; background:#22c55e; color:#fff; font-weight:bold; cursor:pointer; }
+    </style>
 </head>
 <body>
 
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>🔐 Accès Chauffeur</h3>
-            <p>Veuillez entrer le code d'accès pour administrer l'abribus de Louhans.</p>
-            <input type="password" id="passInput" placeholder="Code secret..." onkeydown="if(event.key==='Enter'){validerCode();}">
-            <div class="modal-btn-group">
-                <button onclick="validerCode()">Entrer</button>
-                <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-            </div>
-        </div>
-    </div>
+<div class="login-box">
+    <h2>🔐 Accès Pages</h2>
+    <p>Entrez votre mot de passe pour accéder à votre page :</p>
+    <input type="password" id="passInput" placeholder="Mot de passe..." onkeydown="if(event.key==='Enter'){validerCode();}">
+    <br>
+    <button onclick="validerCode()">Entrer</button>
+</div>
 
-    <button id="accesPrive" title="Accès Chauffeur" onclick="ouvrirModal()">🔒</button>
+<script>
+const passwords = {
+    "chauffeur.html": "3a7bd3e2360a5c7d8cf2b2a1b938c41db50d6f6e85f59f0a3e0f96b8b3e7c321", // jesuischauffeur
+    "jeux.html": "ca6c0c124cb73c1cf4c2159e0c7cce0a1f2c1f4b2d3d5b3e8b2c0d2c0d3e0e0f", // jeuxjeuxjeux
+    "perso.html": "8e42f345bdf4e2a993f5c3b8f9a5b7c2d8a4b7c9d6f1a2b3c4d5e6f7a8b9c0d1"  // antoperso
+};
 
-    <header>
-        <h1><img id="logo" src="logo.png" alt="Logo Abribus"> 🚌 Abribus connecté</h1>
-        <p id="cityLabel">Paris (75000)</p>
-    </header>
+function validerCode(){
+    const code = document.getElementById("passInput").value;
+    const hash = sha256(code);
+    for(let page in passwords){
+        if(hash === passwords[page]){
+            window.location.href = page;
+            return;
+        }
+    }
+    alert("Mot de passe incorrect !");
+}
+</script>
 
-    <div id="zoneAlerteChauffeur"><span id="texteAlerte"></span></div>
-
-    <section>
-        <div class="clock" id="clock">--:--</div>
-        <div class="sensor-box">
-            <div class="sensor-item">
-                <span class="sensor-label">TEMPÉRATURE</span>
-                <span class="sensor-value" id="temp">-- °C</span>
-            </div>
-            <div class="sensor-item">
-                <span class="sensor-label">HUMIDITÉ</span>
-                <span class="sensor-value" id="hum">-- %</span>
-            </div>
-        </div>
-    </section>
-
-    <section class="grid">
-        <div class="recherche-box">
-            <h2>Recherche de ville</h2>
-            <input id="adresse" value="Paris 75000" onkeydown="if(event.key==='Enter'){rechercherVille();}">
-            <button onclick="rechercherVille()">Mettre à jour</button>
-            <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
-            <p id="coords"></p>               
-        </div>
-        <div>
-            <h2>Carte & arrêts de bus</h2>
-            <iframe id="map"></iframe>
-        </div>
-    </section>
-
-    <section class="grid">
-        <div>
-            <h2>🌦 Météo</h2>
-            <iframe id="meteoFrame" src="https://www.meteoblue.com/fr/meteo/widget/three/48.8566,2.3522"></iframe>
-        </div>
-        <div>
-            <h2>🚌 Horaires bus</h2>
-            <iframe id="busFrame"></iframe>
-            <div id="prochainBus" class="bus-timer">🕒 Prochain bus : calcul en cours...</div>
-        </div>
-    </section>
-
-    <section>
-        <h2 class="flex-header">
-            📰 Actualités locales & trafic
-            <button id="toggleScrollBtn">⏸ Pause</button>
-        </h2>
-        <div id="alertBanner"></div>
-        <div id="iaResume"></div>
-        <div id="loadingActus" style="display:none;opacity:0.7;">⏳ Chargement...</div>
-        <div id="actualites"></div>
-        <button id="backToTopBtn" style="display:none;margin-top:8px;">⬆ Revenir en haut</button>
-    </section>
-
-    <footer>
-        Abribus intelligent – STI2D / SIN<br>
-        <a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
-    </footer>
-
-    <script src="script.js"></script>
 </body>
 </html>
