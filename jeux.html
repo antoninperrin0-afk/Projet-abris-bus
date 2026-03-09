@@ -2,55 +2,68 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>🎮 Mini Snake</title>
+<title>🎮 Mini-Jeu Snake</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-body { background:#020617; color:#e5e7eb; display:flex; justify-content:center; align-items:center; height:100vh; font-family:Arial,sans-serif; }
-canvas { background:#0f172a; display:block; margin:auto; }
+body { background:#0f172a; color:#e5e7eb; display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;}
+canvas { background:#020617; border:2px solid #22c55e; }
+button { margin-top:15px; padding:10px 15px; border:none; border-radius:8px; background:#22c55e; color:#000; font-weight:bold; cursor:pointer; }
 </style>
 </head>
 <body>
-<canvas id="game" width="300" height="300"></canvas>
+
+<h1>🎮 Snake ridicule</h1>
+<canvas id="snakeCanvas" width="300" height="300"></canvas>
+<button onclick="window.location.href='index.html'">Retour au site</button>
+
 <script>
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
-const size = 15;
-let snake = [{x:10, y:10}];
-let food = {x:5, y:5};
-let dx = 0, dy = 0;
+const canvas=document.getElementById('snakeCanvas');
+const ctx=canvas.getContext('2d');
+
+let snake=[{x:10,y:10}];
+let dir={x:1,y:0};
+let fruit={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};
+let taille=20;
 
 function draw(){
-    ctx.fillStyle="#0f172a";
+    ctx.fillStyle="#020617";
     ctx.fillRect(0,0,canvas.width,canvas.height);
 
+    // fruit
     ctx.fillStyle="#22c55e";
-    snake.forEach(seg => ctx.fillRect(seg.x*size, seg.y*size, size, size));
+    ctx.fillRect(fruit.x*taille,fruit.y*taille,taille,taille);
 
+    // snake
     ctx.fillStyle="#38bdf8";
-    ctx.fillRect(food.x*size, food.y*size, size, size);
-}
+    snake.forEach(s=>ctx.fillRect(s.x*taille,s.y*taille,taille,taille));
 
-function update(){
-    const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-    snake.unshift(head);
-
-    if(head.x===food.x && head.y===food.y){
-        food = {x: Math.floor(Math.random()*20), y:Math.floor(Math.random()*20)};
-    } else { snake.pop(); }
+    // mouvement
+    let head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
 
     // collision mur
-    if(head.x<0||head.x>19||head.y<0||head.y>19){
-        snake=[{x:10,y:10}]; dx=0; dy=0;
+    if(head.x<0||head.x>=15||head.y<0||head.y>=15){
+        alert("Game Over!");
+        snake=[{x:10,y:10}];
+        dir={x:1,y:0};
+        return;
+    }
+
+    // collision fruit
+    if(head.x===fruit.x && head.y===fruit.y){
+        snake.unshift(head);
+        fruit={x:Math.floor(Math.random()*15),y:Math.floor(Math.random()*15)};
+    } else {
+        snake.pop();
+        snake.unshift(head);
     }
 }
-
-document.addEventListener('keydown', e=>{
-    if(e.key==='ArrowUp'){dx=0; dy=-1;}
-    if(e.key==='ArrowDown'){dx=0; dy=1;}
-    if(e.key==='ArrowLeft'){dx=-1; dy=0;}
-    if(e.key==='ArrowRight'){dx=1; dy=0;}
+document.addEventListener('keydown',e=>{
+    if(e.key==="ArrowUp") dir={x:0,y:-1};
+    if(e.key==="ArrowDown") dir={x:0,y:1};
+    if(e.key==="ArrowLeft") dir={x:-1,y:0};
+    if(e.key==="ArrowRight") dir={x:1,y:0};
 });
-
-setInterval(()=>{update(); draw();}, 200);
+setInterval(draw,200);
 </script>
 </body>
 </html>
