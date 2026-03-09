@@ -1,8 +1,8 @@
 // --- CONFIGURATION FIREBASE ---
-const url = "https://abribus-32b7e-default-rtdb.europe-west1.firebasedatabase.app/airsmart.json";
+const urlFirebase = "https://abribus-32b7e-default-rtdb.europe-west1.firebasedatabase.app/airsmart.json";
 
 function recupererDonnee() {
-    fetch(url)
+    fetch(urlFirebase)
         .then(response => response.json())
         .then(data => {
             if(data) {
@@ -20,12 +20,10 @@ function ouvrirModal() {
   document.getElementById("loginModal").style.display = "flex";
   document.getElementById("passInput").focus();
 }
-
 function fermerModal() {
   document.getElementById("loginModal").style.display = "none";
   document.getElementById("passInput").value = "";
 }
-
 function validerCode() {
   const code = document.getElementById("passInput").value;
   if(code === "jesuischauffeur") {
@@ -36,16 +34,7 @@ function validerCode() {
   }
 }
 
-// --- ANIMATIONS & HORLOGE ---
-const logo = document.getElementById("logo");
-if(logo) {
-    logo.addEventListener("click", () => {
-        logo.classList.remove("logo-anim");
-        void logo.offsetWidth; 
-        logo.classList.add("logo-anim");
-    });
-}
-
+// --- HORLOGE ET MODE NUIT ---
 function updateClock(){
   const n = new Date();
   const clockEl = document.getElementById('clock');
@@ -60,10 +49,7 @@ function checkNightMode(){
   document.body.classList.toggle("night", heure >= 19 || heure <= 7);
 }
 
-// --- RECHERCHE ET API ---
-let autoScroll = true;
-let scrollInterval = null;
-
+// --- RECHERCHE VILLE ET METEO ---
 function rechercherVille(){
   const villeInput = document.getElementById('adresse').value;
   fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(villeInput)}`)
@@ -77,7 +63,10 @@ function rechercherVille(){
     document.getElementById('cityLabel').textContent = nom;
     document.getElementById('coords').textContent = `📍 ${lat}, ${lon}`;
     document.getElementById('map').src = `https://maps.google.com/maps?q=${encodeURIComponent(nom)}&z=14&output=embed&layer=transit`;
+    
+    // MISE A JOUR DYNAMIQUE DU WIDGET METEOBLUE
     document.getElementById('meteoFrame').src = `https://www.meteoblue.com/fr/meteo/widget/three/${lat},${lon}`;
+    
     document.getElementById('busFrame').src = `https://maps.google.com/maps?q=${encodeURIComponent(nom + " bus station")}&z=15&output=embed`;
 
     genererResumeIA(nom);
@@ -89,13 +78,15 @@ function rechercherVille(){
   });
 }
 
-// --- ALERTES & ACTUALITÉS ---
+// --- LOGIQUE ALERTES & ACTUALITÉS ---
+let autoScroll = true;
+let scrollInterval = null;
+
 function verifierAlertesChauffeur() {
     const zone = document.getElementById("zoneAlerteChauffeur");
     const texte = document.getElementById("texteAlerte");
     const villeAffichee = document.getElementById('cityLabel').textContent;
     const data = localStorage.getItem("alerteAbribus");
-    
     if (data) {
         const alerte = JSON.parse(data);
         if (alerte.texte.includes(villeAffichee) || alerte.villeCible === villeAffichee) {
@@ -113,15 +104,9 @@ function verifierProchainBusManuel() {
 }
 
 function chargerActualites(ville){
-  const loading = document.getElementById('loadingActus');
   const divActu = document.getElementById('actualites');
-  loading.style.display = 'block';
-  divActu.innerHTML = '';
   const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
-
-  fetch(rssUrl)
-  .then(res=>res.json())
-  .then(data=>{
+  fetch(rssUrl).then(res=>res.json()).then(data=>{
     divActu.innerHTML = '';
     data.items.slice(0,10).forEach(item=>{
       const div=document.createElement('div');
@@ -129,7 +114,6 @@ function chargerActualites(ville){
       div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
       divActu.appendChild(div);
     });
-    loading.style.display = 'none';
     startScrolling();
   });
 }
