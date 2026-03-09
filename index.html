@@ -8,19 +8,6 @@
 </head>
 <body>
 
-<!-- MODAL MOT DE PASSE -->
-<div id="passwordModal" class="modal-overlay">
-  <div class="modal-card">
-    <h3>🔒 Accès Privé</h3>
-    <p>Entrez le mot de passe pour accéder à votre page :</p>
-    <input type="password" id="passInput" placeholder="Mot de passe...">
-    <div class="modal-btn-group">
-      <button onclick="verifierMotDePasse()">Entrer</button>
-      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-    </div>
-  </div>
-</div>
-
 <!-- Bouton Accès Privé -->
 <button id="accesPrive" title="Accès Privé">🔒</button>
 
@@ -78,26 +65,24 @@ Abribus intelligent – STI2D / SIN<br>
 
 <script src="script.js"></script>
 
-<!-- SCRIPT ACCÈS PRIVÉ -->
+<!-- Petit cadenas pour accéder aux pages privées -->
 <script>
-const modal=document.getElementById("passwordModal");
-const inputPass=document.getElementById("passInput");
+document.getElementById("accesPrive").addEventListener("click", () => {
+    const code = prompt("Entrez le mot de passe :");
 
-document.getElementById("accesPrive").addEventListener("click",()=>modal.style.display="flex");
+    if(code === null) return;
 
-function fermerModal(){
-  modal.style.display="none";
-  inputPass.value="";
-}
-
-function verifierMotDePasse(){
-  const code=inputPass.value.trim();
-  if(code==="jesuischauffeur") window.location.href="chauffeur.html";
-  else if(code==="jeuxjeuxjeux") window.location.href="jeux.html";
-  else if(code==="antoperso") window.location.href="perso.html";
-  else alert("Mot de passe incorrect !");
-  fermerModal();
-}
+    if(code === "jesuischauffeur") {
+        window.location.href = "chauffeur.html";
+    } else if(code === "jeuxjeuxjeux") {
+        window.location.href = "jeux.html";
+    } else if(code === "antoperso") {
+        window.location.href = "perso.html";
+    } else {
+        alert("Mot de passe incorrect !");
+    }
+});
 </script>
+
 </body>
 </html>
