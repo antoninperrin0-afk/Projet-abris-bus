@@ -8,23 +8,52 @@
 </head>
 
 <body>
-<button id="accesPrive">🔒</button>
+
+<div id="loginModal" class="modal-overlay">
+  <div class="modal-card">
+    <h3>🔐 Accès Chauffeur</h3>
+    <p>Veuillez entrer le code d'accès pour administrer l'abribus de Louhans.</p>
+    <input type="password" id="passInput" placeholder="Code secret..." onkeydown="if(event.key==='Enter'){validerCode();}">
+    <div class="modal-btn-group">
+      <button onclick="validerCode()">Entrer</button>
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<button id="accesPrive" title="Accès Chauffeur" onclick="ouvrirModal()">🔒</button>
+
 <header>
   <h1>
     <img id="logo" src="logo.png" alt="Logo Abribus">
     🚌 Abribus connecté
   </h1>
-  <p id="cityLabel">Louhans (71500)</p>
+  <p id="cityLabel">Paris (75000)</p>
 </header>
+
+<div id="zoneAlerteChauffeur">
+    <span id="texteAlerte"></span>
+</div>
 
 <section>
   <div class="clock" id="clock">--:--</div>
+  
+  <div class="sensor-box">
+      <div class="sensor-item">
+          <span class="sensor-label">TEMPÉRATURE</span>
+          <span class="sensor-value" id="temp">-- °C</span>
+      </div>
+      <div class="sensor-item">
+          <span class="sensor-label">HUMIDITÉ</span>
+          <span class="sensor-value" id="hum">-- %</span>
+      </div>
+  </div>
 </section>
 
 <section class="grid">
   <div class="recherche-box">
     <h2>Recherche de ville</h2>
-    <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+    <input id="adresse" value="Paris 75000" onkeydown="if(event.key==='Enter'){rechercherVille();}">
     <button onclick="rechercherVille()">Mettre à jour</button>
     <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
     <p id="coords"></p>               
@@ -38,12 +67,12 @@
 <section class="grid">
   <div>
     <h2>🌦 Météo</h2>
-    <iframe id="meteoFrame"></iframe>
+    <iframe id="meteoFrame" src="https://www.meteoblue.com/fr/meteo/widget/three/48.8566,2.3522"></iframe>
   </div>
   <div>
     <h2>🚌 Horaires bus</h2>
     <iframe id="busFrame"></iframe>
-    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;font-weight:bold;">
+    <div id="prochainBus" class="bus-timer">
       🕒 Prochain bus : calcul en cours...
     </div>
   </div>
