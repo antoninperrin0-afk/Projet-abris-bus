@@ -110,3 +110,30 @@ window.onload = () => {
   document.getElementById("adresse").value = v;
   rechercherVille();
 };
+// Affiche la fenêtre de connexion
+function ouvrirModal() {
+  document.getElementById("loginModal").style.display = "flex";
+  document.getElementById("passInput").focus();
+}
+
+// Cache la fenêtre
+function fermerModal() {
+  document.getElementById("loginModal").style.display = "none";
+  document.getElementById("passInput").value = "";
+}
+
+// Vérifie le code et redirige
+function validerCode() {
+  const code = document.getElementById("passInput").value;
+  
+  if(code === "chauffeur") {
+    window.location.href = "chauffeur.html";
+  } 
+  else if(code === "jeux") {
+    window.location.href = "jeux.html"; // Assure-toi que ce fichier existe
+  }
+  else {
+    alert("Code incorrect !");
+    document.getElementById("passInput").value = "";
+  }
+}
