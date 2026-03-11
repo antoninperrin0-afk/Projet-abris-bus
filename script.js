@@ -63,19 +63,41 @@ function rechercherVille(){
 }
 
 // --- ACTUALITÉS ET TRAFIC ---
-function chargerActualites(ville){
-  const divActu = document.getElementById('actualites');
-  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
-  fetch(rssUrl).then(res=>res.json()).then(data=>{
-    divActu.innerHTML = '';
-    data.items.slice(0,10).forEach(item=>{
-      const div=document.createElement('div');
-      div.className='actualiteItem';
-      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
-      divActu.appendChild(div);
-    });
-    startScrolling();
-  });
+function chargerActualites(ville) {
+    const divActu = document.getElementById('actualites');
+    const loading = document.getElementById('loadingActus');
+    if(loading) loading.style.display = 'block'; // Affiche le chargement
+
+    // On utilise un flux plus rapide et ciblé (JSL Bresse / Louhans)
+    const rssLocale = "https://www.lejsl.com/edition-bresse/rss";
+    const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssLocale)}`;
+
+    fetch(rssUrl)
+        .then(res => res.json())
+        .then(data => {
+            if(loading) loading.style.display = 'none';
+            divActu.innerHTML = '';
+
+            if (data.items && data.items.length > 0) {
+                data.items.slice(0, 10).forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'actualiteItem';
+                    // On ajoute une petite icône calendrier pour le style STI2D
+                    div.innerHTML = `
+                        <div class="title">📰 ${item.title}</div>
+                        <a class="link" href="${item.link}" target="_blank">Lire l'article</a>
+                    `;
+                    divActu.appendChild(div);
+                });
+            } else {
+                divActu.innerHTML = '<p>Aucune actualité locale trouvée.</p>';
+            }
+            startScrolling();
+        })
+        .catch(err => {
+            if(loading) loading.style.display = 'none';
+            console.error("Erreur RSS:", err);
+        });
 }
 
 function startScrolling(){
