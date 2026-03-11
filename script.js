@@ -76,7 +76,7 @@ function chargerActualites(ville){
     });
     startScrolling();
   });
-}
+}  
 
 function startScrolling(){
   const divActu = document.getElementById('actualites');
