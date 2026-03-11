@@ -65,15 +65,22 @@ function rechercherVille(){
 // --- ACTUALITÉS ET TRAFIC ---
 function chargerActualites(ville){
   const divActu = document.getElementById('actualites');
-  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
+    
+  const requeteSavoirPlus = `${ville}+OR+Bresse+OR+Saone-et-Loire`;
+  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${requeteSavoirPlus}&hl=fr&gl=FR&ceid=FR:fr`)}`;
+
   fetch(rssUrl).then(res=>res.json()).then(data=>{
     divActu.innerHTML = '';
-    data.items.slice(0,10).forEach(item=>{
-      const div=document.createElement('div');
-      div.className='actualiteItem';
-      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
-      divActu.appendChild(div);
-    });
+    if(data.items && data.items.length > 0) {
+      data.items.slice(0,10).forEach(item=>{
+        const div=document.createElement('div');
+        div.className='actualiteItem';
+        div.innerHTML=`<div class="title">📰 ${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
+        divActu.appendChild(div);
+      });
+    } else {
+      divActu.innerHTML = "Aucune information locale disponible pour le moment.";
+    }
     startScrolling();
   });
 }
