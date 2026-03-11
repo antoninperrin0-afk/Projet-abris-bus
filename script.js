@@ -64,23 +64,20 @@ function rechercherVille(){
 
 // --- ACTUALITÉS ET TRAFIC ---
 function chargerActualites(ville){
-  const rssUrl=`https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic OR bus OR grève')}&hl=fr&gl=FR&ceid=FR:fr`;
-  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
-  .then(res=>res.json())
-  .then(data=>{
-    actualitesDiv.innerHTML='';
-    data.items.slice(0,5).forEach(item=>{
+  const divActu = document.getElementById('actualites');
+  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${ville}+trafic+bus&hl=fr&gl=FR&ceid=FR:fr`)}`;
+  fetch(rssUrl).then(res=>res.json()).then(data=>{
+    divActu.innerHTML = '';
+    data.items.slice(0,10).forEach(item=>{
       const div=document.createElement('div');
       div.className='actualiteItem';
-      div.innerHTML=`<div class="title">${item.title}</div>
-                     <div class="link">${item.link}</div>`;
-      actualitesDiv.appendChild(div);
+      div.innerHTML=`<div class="title">${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
+      divActu.appendChild(div);
     });
     startScrolling();
-  }).catch(err=>{
-    actualitesDiv.innerHTML='Impossible de charger les actualités';
   });
 }
+
 function startScrolling(){
   const divActu = document.getElementById('actualites');
   if(scrollInterval) clearInterval(scrollInterval);
