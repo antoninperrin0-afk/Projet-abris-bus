@@ -124,17 +124,18 @@ function fermerModal() {
 
 // Vérifie le code et redirige
 function validerCode() {
-  const code = document.getElementById("passInput").value;
-  console.log("Code saisi :", code);
+    const code = document.getElementById("passInput").value.trim(); 
     
-if (code === "jesuischauffeur") {
+    console.log("Code saisi :", code); // Pour debug dans la console (F12)
+
+    if (code === "jesuischauffeur") {
         alert("Accès Chauffeur validé");
         window.location.href = "chauffeur.html"; 
     } 
     else if (code === "jeuxjeuxjeux") {
         alert("Lancement des jeux...");
         window.location.href = "jeux.html"; 
-    } 
+    }
     else if (code === "antoperso") {
         alert("Lancement de votre page personnel MR PERRIN...");
         window.location.href = "perso.html"; 
