@@ -124,27 +124,16 @@ function fermerModal() {
 
 // Vérifie le code et redirige
 function validerCode() {
-    const code = document.getElementById("passInput").value.trim(); 
-    
-    console.log("Code saisi :", code); // Pour debug dans la console (F12)
-
-    if (code === "jesuischauffeur") {
-        alert("Accès Chauffeur validé");
-        window.location.href = "chauffeur.html"; 
-    } 
-    else if (code === "jeuxjeuxjeux") {
-        alert("Lancement des jeux...");
-        window.location.href = "jeux.html"; 
-    }
-    else if (code === "antoperso") {
-        alert("Lancement de votre page personnel MR PERRIN...");
-        window.location.href = "perso.html"; 
-    }
-    else if (code === "yellowsuit") {
-        alert("Lancement de subway surfer...");
-        window.location.href = "https://yell0wsuit.page/assets/games/subway-surfers-unity/index.html";    
-    else {
-        alert("Code incorrect !");
-        document.getElementById("passInput").value = "";
+  const code = document.getElementById("passInput").value;
+  
+  if(code === "chauffeur") {
+    window.location.href = "chauffeur.html";
+  } 
+  else if(code === "jeux") {
+    window.location.href = "jeux.html"; // Assure-toi que ce fichier existe
+  }
+  else {
+    alert("Code incorrect !");
+    document.getElementById("passInput").value = "";
   }
 }
