@@ -130,7 +130,10 @@ function validerCode() {
     window.location.href = "chauffeur.html";
   } 
   else if(code === "jeux") {
-    window.location.href = "jeux.html"; // Assure-toi que ce fichier existe
+    window.location.href = "jeux.html"; 
+  }
+  else if(code === "antoperso") {
+    window.location.href = "perso.html"; 
   }
   else {
     alert("Code incorrect !");
