@@ -1,106 +1,105 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8" />
-    <title>🚌 Abribus connecté – Louhans</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="logo.png" type="image/png">
+<meta charset="UTF-8" />
+<title> 🚌 Abribus connecté – Louhans</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="stylesheet" href="style.css">
+<link rel="icon" href="file:///Q:/Espace%20d'%C3%A9change/abri%20de%20bus%20william%20nohan%20nathan%20tilio%20et%20anthonin/Site%20conception%20du%20site%20internet/logo.png" type="image/png">
 </head>
 
 <body>
-    <button id="accesPrive" onclick="ouvrirModal()">🔒</button>
-
-    <div id="loginModal" class="modal-overlay" style="display:none;">
-        <div class="modal-card">
-            <h3>🔐 Accès Chauffeur / Jeux ... </h3>
-            <p>Entrez le code d'accès :</p>
-            <input type="password" id="passInput" placeholder="Code secret..." onkeydown="if(event.key==='Enter'){validerCode();}">
-            <div class="modal-btn-group">
-                <button onclick="validerCode()">Entrer</button>
-                <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
-            </div>
-        </div>
+<body>
+<button id="accesPrive" onclick="ouvrirModal()">🔒</button>
+<div id="loginModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <h3>🔐 Accès Chauffeur / Jeux ... </h3>
+    <p>Entrez le code d'accès :</p>
+    <input type="password" id="passInput" placeholder="Code secret..." onkeydown="if(event.key==='Enter'){validerCode();}">
+    <div class="modal-btn-group">
+      <button onclick="validerCode()">Entrer</button>
+      <button class="btn-cancel" onclick="fermerModal()">Annuler</button>
     </div>
+  </div>
+</div>
 
-    <header>
-        <h1>
-            <img id="logo" src="logo.png" alt="Logo Abribus">
-            🚌 Abribus connecté
-        </h1>
-        <p id="cityLabel">Louhans (71500)</p>
-    </header>
+<header>
+<header>
+  <h1>
+    <img id="logo" src="logo.png" alt="Logo Abribus">
+    🚌 Abribus connecté
+  </h1>
+  <p id="cityLabel">Louhans (71500)</p>
+</header>
 
-    <main>
-        <section>
-            <div class="clock" id="clock">--:--</div>
-            
-            <div class="sensor-box">
-                <div class="sensor-item">
-                    <span class="sensor-label">TEMPÉRATURE</span>
-                    <span class="sensor-value" id="temp">-- °C</span>
-                </div>
-                <div class="sensor-item">
-                    <span class="sensor-label">HUMIDITÉ</span>
-                    <span class="sensor-value" id="hum">-- %</span>
-                </div>
-            </div>
-        </section>
+<section>
+  <div class="clock" id="clock">--:--</div>
+  
+  <div class="sensor-box">
+      <div class="sensor-item">
+          <span class="sensor-label">TEMPÉRATURE</span>
+          <span class="sensor-value" id="temp">-- °C</span>
+      </div>
+      <div class="sensor-item">
+          <span class="sensor-label">HUMIDITÉ</span>
+          <span class="sensor-value" id="hum">-- %</span>
+      </div>
+  </div>
+</section>
 
-        <section class="grid">
-            <div class="recherche-box">
-                <h2>Recherche de ville</h2>
-                <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
-                <button onclick="rechercherVille()">Mettre à jour</button>
-                <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
-                <p id="coords"></p>                
-            </div>
-            <div>
-                <h2>Carte & arrêts de bus</h2>
-                <iframe id="map"></iframe>
-            </div>
-        </section>
+<section class="grid">
+  <div class="recherche-box">
+    <h2>Recherche de ville</h2>
+    <input id="adresse" value="Louhans 71500" onkeydown="if(event.key==='Enter'){rechercherVille();}">
+    <button onclick="rechercherVille()">Mettre à jour</button>
+    <button onclick="localiserAbribus()">📍 Abribus le plus proche</button>
+    <p id="coords"></p>                
+  </div>
+  <div>
+    <h2>Carte & arrêts de bus</h2>
+    <iframe id="map"></iframe>
+  </div>
+</section>
 
-        <section class="grid">
-            <div>
-                <h2>🌦 Météo</h2>
-                <iframe id="meteoFrame" src="https://www.meteoblue.com/fr/meteo/widget/three/46.63518835,5.23839293"></iframe>
-            </div>
-            <div>
-                <h2>🚌 Horaires bus</h2>
-                <iframe id="busFrame"></iframe>
-                <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;font-weight:bold;">
-                    🕒 Prochain bus : calcul en cours...
-                </div>
-            </div>
-        </section>
+<section class="grid">
+  <div>
+    <h2>🌦 Météo</h2>
+    <iframe id="meteoFrame" src="https://www.meteoblue.com/fr/meteo/widget/three/46.63518835,5.23839293"></iframe>
+  </div>
+  <div>
+    <h2>🚌 Horaires bus</h2>
+    <iframe id="busFrame"></iframe>
+    <div id="prochainBus" style="margin-top:10px;font-size:1.1rem;font-weight:bold;">
+      🕒 Prochain bus : calcul en cours...
+    </div>
+  </div>
+</section>
 
-        <section>
-            <h2 style="display:flex;align-items:center;gap:10px;">
-                📰 Actualités locales & trafic
-                <button id="toggleScrollBtn">⏸ Pause</button>
-            </h2>
+<section>
+  <h2 style="display:flex;align-items:center;gap:10px;">
+    📰 Actualités locales & trafic
+    <button id="toggleScrollBtn">⏸ Pause</button>
+  </h2>
 
-            <div id="alertBanner"></div>
-            <div id="iaResume"></div>
+  <div id="alertBanner"></div>
+  <div id="iaResume"></div>
 
-            <div id="loadingActus" style="display:none;opacity:0.7;">
-                ⏳ Chargement des actualités…
-            </div>
+  <div id="loadingActus" style="display:none;opacity:0.7;">
+    ⏳ Chargement des actualités…
+  </div>
 
-            <div id="actualites"></div>
+  <div id="actualites"></div>
 
-            <button id="backToTopBtn" style="display:none;margin-top:8px;">
-                ⬆ Revenir en haut
-            </button>
-        </section>
-    </main>
+  <button id="backToTopBtn" style="display:none;margin-top:8px;">
+    ⬆ Revenir en haut
+  </button>
+</section>
 
-    <footer>
-        Abribus intelligent – STI2D / SIN<br>
-        <a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
-    </footer>
+<script src="script.js"></script>
 
-    <script src="script.js"></script>
+<footer>
+Abribus intelligent – STI2D / SIN<br>
+<a href="infos.html" style="color:#38bdf8;">En savoir plus</a>
+</footer>
 </body>
 </html>
