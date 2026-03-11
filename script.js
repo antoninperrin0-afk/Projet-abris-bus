@@ -64,32 +64,23 @@ function rechercherVille(){
 
 // --- ACTUALITÉS ET TRAFIC ---
 function chargerActualites(ville){
-  const divActu = document.getElementById('actualites');
-  
-  const villeSimple = ville.split('-')[0]; 
-  const requeteSavoirPlus = `${villeSimple}+OR+Bresse+OR+Saone-et-Loire`;
-  
-  const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${requeteSavoirPlus}&hl=fr&gl=FR&ceid=FR:fr`)}`;
-
-  fetch(rssUrl).then(res=>res.json()).then(data=>{
-    divActu.innerHTML = '';
-    if(data.items && data.items.length > 0) {
-      data.items.slice(0,10).forEach(item=>{
-        const div=document.createElement('div');
-        div.className='actualiteItem';
-        div.innerHTML=`<div class="title">📰 ${item.title}</div><a class="link" href="${item.link}" target="_blank">Lire la suite</a>`;
-        divActu.appendChild(div);
-      });
-    } else {
-      divActu.innerHTML = "Aucune information locale disponible pour le moment.";
-    }
+  const rssUrl=`https://news.google.com/rss/search?q=${encodeURIComponent(ville+' trafic OR bus OR grève')}&hl=fr&gl=FR&ceid=FR:fr`;
+  fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+  .then(res=>res.json())
+  .then(data=>{
+    actualitesDiv.innerHTML='';
+    data.items.slice(0,5).forEach(item=>{
+      const div=document.createElement('div');
+      div.className='actualiteItem';
+      div.innerHTML=`<div class="title">${item.title}</div>
+                     <div class="link">${item.link}</div>`;
+      actualitesDiv.appendChild(div);
+    });
     startScrolling();
-  }).catch(err => {
-    console.error("Erreur de flux :", err);
-    divActu.innerHTML = "Erreur de chargement des actualités.";
+  }).catch(err=>{
+    actualitesDiv.innerHTML='Impossible de charger les actualités';
   });
 }
-
 function startScrolling(){
   const divActu = document.getElementById('actualites');
   if(scrollInterval) clearInterval(scrollInterval);
