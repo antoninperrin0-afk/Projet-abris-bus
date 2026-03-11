@@ -65,8 +65,10 @@ function rechercherVille(){
 // --- ACTUALITÉS ET TRAFIC ---
 function chargerActualites(ville){
   const divActu = document.getElementById('actualites');
-    
-  const requeteSavoirPlus = `${ville}+OR+Bresse+OR+Saone-et-Loire`;
+  
+  const villeSimple = ville.split('-')[0]; 
+  const requeteSavoirPlus = `${villeSimple}+OR+Bresse+OR+Saone-et-Loire`;
+  
   const rssUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(`https://news.google.com/rss/search?q=${requeteSavoirPlus}&hl=fr&gl=FR&ceid=FR:fr`)}`;
 
   fetch(rssUrl).then(res=>res.json()).then(data=>{
@@ -82,6 +84,9 @@ function chargerActualites(ville){
       divActu.innerHTML = "Aucune information locale disponible pour le moment.";
     }
     startScrolling();
+  }).catch(err => {
+    console.error("Erreur de flux :", err);
+    divActu.innerHTML = "Erreur de chargement des actualités.";
   });
 }
 
