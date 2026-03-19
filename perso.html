@@ -4,11 +4,159 @@
 <meta charset="UTF-8">
 <title>📖 Page Perso</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
-body { margin:0; display:flex; justify-content:center; align-items:center; height:100vh; background:#0f172a; color:#22c55e; font-family:sans-serif; font-size:1.5rem; text-align:center; }
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* BODY */
+body {
+  font-family: sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: #22c55e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  transition: 0.3s;
+}
+
+/* NAVBAR */
+nav {
+  margin-top: 20px;
+}
+
+nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  color: #22c55e;
+  font-weight: bold;
+}
+
+nav a:hover {
+  color: #4ade80;
+}
+
+/* CARD */
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  padding: 30px;
+  margin: 30px;
+  text-align: center;
+  max-width: 500px;
+  animation: fadeIn 1s ease;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* BUTTON */
+button {
+  margin-top: 15px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  background: #22c55e;
+  color: #0f172a;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #4ade80;
+  transform: scale(1.05);
+}
+
+/* SECTION */
+section {
+  margin: 20px;
+  text-align: center;
+}
+
+ul {
+  list-style: none;
+}
+
+li {
+  margin: 5px 0;
+}
+
+/* LIGHT MODE */
+.light {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .card {
+    width: 90%;
+  }
+}
 </style>
+
 </head>
+
 <body>
-<p>Bienvenue sur ma page perso. Ceci est ma page perso pour m'entraîner à créer des sites web.</p>
+
+<!-- NAVBAR -->
+<nav>
+  <a href="#">Accueil</a>
+  <a href="#">Apprentissage</a>
+  <a href="#">Projets</a>
+</nav>
+
+<!-- CARD PRINCIPALE -->
+<div class="card">
+  <h1>👋 Salut !</h1>
+  <p id="texte">Bienvenue sur ma page perso pour apprendre le développement web.</p>
+
+  <button onclick="changerTexte()">Clique-moi</button>
+  <button onclick="toggleMode()">🌙 Mode</button>
+</div>
+
+<!-- SECTION APPRENTISSAGE -->
+<section>
+  <h2>📚 Ce que j'apprends</h2>
+  <ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+  </ul>
+</section>
+
+<!-- SECTION PROJETS -->
+<section>
+  <h2>🚀 Mes projets</h2>
+  <p>👉 Mini site perso</p>
+  <p>👉 Futur portfolio</p>
+</section>
+
+<script>
+function changerTexte() {
+  document.getElementById("texte").textContent = "🔥 Bien joué ! Tu utilises JavaScript !";
+}
+
+function toggleMode() {
+  document.body.classList.toggle("light");
+}
+</script>
+
 </body>
 </html>
